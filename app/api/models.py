@@ -1,6 +1,12 @@
 from pydantic import BaseModel
 from datetime import datetime
 from typing import Optional, Literal
+from enum import Enum
+
+class UserRole(str, Enum):
+    admin = "ADMIN"
+    teacher = "TEACHER"
+    student = "STUDENT"
 
 class BaseUser(BaseModel):
     """
