@@ -147,4 +147,5 @@ dist/
 doc_build/
 
 # App
+.vscode
 config.yml
