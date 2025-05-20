@@ -1,13 +1,12 @@
 from api import auth
+from core.config import config
 from fastapi import FastAPI
 
 # from app.core.config import settings
 # from app.utils.exceptions import register_exception_handlers  # 可选
 
-# if sys.platform == "win32":
-#     asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
 
-app = FastAPI(title="Edu System", version="1.0.0")
+app = FastAPI(title=config.title, version=config.version)
 
 # 注册异常处理器（可选）
 # register_exception_handlers(app)
@@ -30,4 +29,4 @@ app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8080)
+    uvicorn.run(app, host=config.host, port=config.port)
