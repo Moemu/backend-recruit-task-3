@@ -10,7 +10,10 @@ from jwt.exceptions import InvalidTokenError
 from models.user import User
 from passlib.context import CryptContext
 from repositories.user_repository import UserRepository
+from services.token_blacklist import is_token_blacklisted
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from .models import Payload
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="./login")
 
@@ -36,22 +39,22 @@ def get_password_hash(password: str):
     return pwd_context.hash(password)
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(
+    payload: Payload, expires_delta: Optional[timedelta] = None
+) -> str:
     """
     创建通行密钥
 
-    :param data: jwt payload
+    :param payload: jwt payload
     :param expires_delta: 通行密钥过期时间
 
     :return: encoded_jwt
     """
-    to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, config.secret_key, algorithm=config.algorithm)
+    expire = datetime.now(timezone.utc) + (expires_delta or timedelta(minutes=15))
+    payload.exp = int(expire.timestamp())
+    encoded_jwt = jwt.encode(
+        payload.to_json(), config.secret_key, algorithm=config.algorithm
+    )
     return encoded_jwt
 
 
@@ -90,16 +93,26 @@ async def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
 
+    # 核验密钥有效性
     try:
-        payload = jwt.decode(token, config.secret_key, algorithms=[config.algorithm])
-        username = payload.get("sub")
-        if username is None:
+        payload_dict = jwt.decode(
+            token, config.secret_key, algorithms=[config.algorithm]
+        )
+        payload = Payload(**payload_dict)
+        username = payload.sub
+        if (
+            (payload.sub is None or payload.exp is None)
+            or payload.exp < datetime.timestamp(datetime.now())
+            or await is_token_blacklisted(payload.jti)
+        ):
             raise credentials_exception
     except InvalidTokenError:
         raise credentials_exception
 
+    # 核验用户是否存在
     if not (user := await repo.get_by_name(username)):
         raise credentials_exception
+    # 核验用户状态是否有效
     if user.status == 1:
         raise HTTPException(status_code=400, detail="Inactive user")
 
