@@ -5,15 +5,15 @@ from core.config import config
 from deps import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from models.user import UserRole
+from models.user import User, UserRole
 from repositories.user_repository import UserRepository
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ._auth import (
     authenticate_user,
     create_access_token,
+    get_current_user,
     get_password_hash,
-    oauth2_scheme,
 )
 from .models import Token
 
@@ -40,8 +40,8 @@ async def login(
 
 
 @router.post("/logout", tags=["auth"])
-async def logout(token: Annotated[str, Depends(oauth2_scheme)]):
-    return {"success": True}
+async def logout(current_user: Annotated[User, Depends(get_current_user)]):
+    return {"msg": f"User {current_user.username} logged out"}
 
 
 @router.post("/register", tags=["auth"])
