@@ -4,10 +4,9 @@ from typing import Optional, Union
 import jwt
 from core.config import config
 from fastapi.security import OAuth2PasswordBearer
+from models.user import User
 from passlib.context import CryptContext
 from repositories.user_repository import UserRepository
-
-from app.models import User
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="./token")
 

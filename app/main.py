@@ -4,6 +4,9 @@ from fastapi import FastAPI
 # from app.core.config import settings
 # from app.utils.exceptions import register_exception_handlers  # 可选
 
+# if sys.platform == "win32":
+#     asyncio.set_event_loop_policy(asyncio.DefaultEventLoopPolicy())
+
 app = FastAPI(title="Edu System", version="1.0.0")
 
 # 注册异常处理器（可选）

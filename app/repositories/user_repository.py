@@ -1,9 +1,8 @@
 from typing import Literal, Optional
 
+from models.user import User, UserRole
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.models import User, UserRole
 
 
 class UserRepository:
@@ -26,7 +25,7 @@ class UserRepository:
         创建一个用户
 
         :param username: 用户名
-        :param password: base64 用户密钥
+        :param password: 用户哈希密钥
         :param role: 用户角色(student/teacher/admin)
         :param status: 用户状态(0-正常/1-禁用)
         """
