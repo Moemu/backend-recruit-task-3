@@ -1,9 +1,15 @@
+import enum
 from datetime import datetime
 
 import sqlalchemy
 from core.sql import Base
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
+
+
+class CourseType(int, enum.Enum):
+    CORE = 0
+    ELECTIVE = 1
 
 
 class Course(Base):
@@ -27,12 +33,8 @@ class Course(Base):
         Integer, nullable=False, comment="课程类型(0-必修, 1-选修)"
     )
     credit: Mapped[float] = mapped_column(Numeric, nullable=False, comment="学分")
-    is_public: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=0, comment="是否公开(0-否,1-是)"
-    )
-    status: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=0, comment="状态(0-正常,1-禁用)"
-    )
+    is_public: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否公开")
+    status: Mapped[bool] = mapped_column(Boolean, default=True, comment="课程正常状态")
     create_time: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,

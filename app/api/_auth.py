@@ -7,9 +7,9 @@ from deps import get_db
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
-from models.user import User
+from models.user import User, UserRole
 from passlib.context import CryptContext
-from repositories.user_repository import UserRepository
+from repositories.user import UserRepository
 from services.token_blacklist import is_token_blacklisted
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -84,7 +84,7 @@ async def get_current_user(
     获取当前登录用户信息
 
     :param userdb: AsyncSession 实例
-    :param token: oauth2_scheme 表单
+    :param token: Bearer token
     """
     repo = UserRepository(db)
     credentials_exception = HTTPException(
@@ -116,4 +116,20 @@ async def get_current_user(
     if user.status == 1:
         raise HTTPException(status_code=400, detail="Inactive user")
 
+    return user
+
+
+async def check_and_get_current_teacher(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> User:
+    """
+    检查并获取当前登录的教师账号
+
+    :param userdb: AsyncSession 实例
+    :param token: Bearer token
+    """
+    user = await get_current_user(db, token)
+    if user.role == UserRole.student:
+        raise HTTPException(status_code=403, detail="Permission denied")
     return user
