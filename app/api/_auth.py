@@ -113,7 +113,7 @@ async def get_current_user(
     if not (user := await repo.get_by_name(username)):
         raise credentials_exception
     # 核验用户状态是否有效
-    if user.status == 1:
+    if not user.status:
         raise HTTPException(status_code=400, detail="Inactive user")
 
     return user
@@ -131,5 +131,21 @@ async def check_and_get_current_teacher(
     """
     user = await get_current_user(db, token)
     if user.role == UserRole.student:
+        raise HTTPException(status_code=403, detail="Permission denied")
+    return user
+
+
+async def check_and_get_current_student(
+    db: Annotated[AsyncSession, Depends(get_db)],
+    token: Annotated[str, Depends(oauth2_scheme)],
+) -> User:
+    """
+    检查并获取当前登录的学生账号
+
+    :param userdb: AsyncSession 实例
+    :param token: Bearer token
+    """
+    user = await get_current_user(db, token)
+    if user.role != UserRole.student:
         raise HTTPException(status_code=403, detail="Permission denied")
     return user

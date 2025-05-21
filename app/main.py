@@ -1,4 +1,4 @@
-from api import auth, teacher
+from api import auth, student, teacher
 from core.config import config
 from fastapi import FastAPI
 
@@ -13,7 +13,7 @@ app = FastAPI(title=config.title, version=config.version)
 
 # 注册 API 路由
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
-# app.include_router(student.router, prefix="/api/students", tags=["Students"])
+app.include_router(student.router, prefix="/api/student", tags=["student"])
 app.include_router(teacher.router, prefix="/api/course", tags=["course"])
 # app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 

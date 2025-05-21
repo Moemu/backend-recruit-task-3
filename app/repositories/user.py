@@ -35,3 +35,36 @@ class UserRepository:
         self.session.add(user)
         await self.session.commit()
         return user
+
+    async def edit_info(
+        self,
+        user: User,
+        username: str,
+        status: bool,
+        major_id: int,
+        grade: int,
+    ):
+        """
+        编辑用户信息
+
+        :param user: 用户对象
+        :param username: 用户名
+        :param status: 用户状态(0-正常/1-禁用)
+        :param major_id: 专业ID
+        :param grade: 年级
+        """
+        user.username = username
+        user.status = status
+        user.major_id = major_id
+        user.grade = grade
+        await self.session.commit()
+
+    async def change_password(self, user: User, new_password: str):
+        """
+        修改用户密码
+
+        :param user: 用户对象
+        :param new_password: 新密码
+        """
+        user.password = new_password
+        await self.session.commit()
