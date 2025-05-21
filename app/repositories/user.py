@@ -20,7 +20,7 @@ class UserRepository:
 
     async def create_user(
         self, username: str, password: str, role: UserRole, status: Literal[0, 1] = 0
-    ):
+    ) -> Optional[User]:
         """
         创建一个用户
 
@@ -29,6 +29,8 @@ class UserRepository:
         :param role: 用户角色(student/teacher/admin)
         :param status: 用户状态(0-正常/1-禁用)
         """
+        if await self.get_by_name(username):
+            return None
         user = User(username=username, password=password, role=role, status=status)
         self.session.add(user)
         await self.session.commit()
