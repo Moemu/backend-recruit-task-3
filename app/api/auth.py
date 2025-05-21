@@ -1,19 +1,21 @@
 import time
 from datetime import timedelta
+from typing import Annotated
 
 import jwt
 from core.config import config
 from deps import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from models.user import UserRole
-from repositories.user_repository import UserRepository
+from models.user import User, UserRole
+from repositories.user import UserRepository
 from services.token_blacklist import add_token_to_blacklist
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ._auth import (  # get_current_user,
     authenticate_user,
     create_access_token,
+    get_current_user,
     get_password_hash,
     oauth2_scheme,
 )
@@ -42,7 +44,10 @@ async def login(
 
 
 @router.post("/logout", tags=["auth"])
-async def logout(token: str = Depends(oauth2_scheme)):
+async def logout(
+    current_user: Annotated[User, Depends(get_current_user)],
+    token: str = Depends(oauth2_scheme),
+):
     payload = jwt.decode(token, config.secret_key, algorithms=config.algorithm)
     jti = payload.get("jti")
     exp = payload.get("exp")
@@ -60,7 +65,12 @@ async def register(
 ):
     repo = UserRepository(db)
     hash_password = get_password_hash(form_data.password)
-    await repo.create_user(
+    if await repo.create_user(
         username=form_data.username, password=hash_password, role=role
+    ):
+        return {"success": True, "msg": "User created successfully"}
+
+    raise HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="User already exists",
     )
-    return {"success": True}
