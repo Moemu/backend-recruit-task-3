@@ -34,7 +34,7 @@ class User(Base):
         Enum(UserRole), nullable=False, comment="角色(ADMIN/TEACHER/STUDENT)"
     )
     status: Mapped[bool] = mapped_column(
-        Boolean, nullable=False, default=False, comment="状态(0-正常,1-禁用)"
+        Boolean, nullable=False, default=True, comment="状态(正常/禁用)"
     )
 
     major_id: Mapped[int] = mapped_column(BigInteger, nullable=True, comment="专业ID")
