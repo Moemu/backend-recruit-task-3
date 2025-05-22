@@ -69,6 +69,12 @@ async def change_password(
 
 @router.post("/schedule", tags=["student"])
 async def get_schedule(
+    term: str,
     current_user: Annotated[User, Depends(check_and_get_current_student)],
     db: AsyncSession = Depends(get_db),
-): ...
+):
+    repo = UserRepository(db)
+    schedule = await repo.get_schedule(current_user, term)
+    if not schedule:
+        raise HTTPException(status_code=404, detail="Schedule not found")
+    return schedule

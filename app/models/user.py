@@ -41,10 +41,10 @@ class User(Base):
     grade: Mapped[int] = mapped_column(Integer, nullable=True, comment="年级")
 
     account_number: Mapped[str] = mapped_column(
-        String(9),
+        String(12),
         unique=True,
         nullable=False,
-        comment="账号格式: 届号(2位)+院系号(3位)+顺序号(4位)",
+        comment="账号格式",
     )
 
     create_time: Mapped[datetime] = mapped_column(

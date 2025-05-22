@@ -45,7 +45,11 @@ class Course(Base):
     )
     credit: Mapped[float] = mapped_column(Numeric, nullable=False, comment="学分")
     is_public: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否公开")
-    status: Mapped[bool] = mapped_column(Boolean, default=True, comment="课程正常状态")
+    status: Mapped[bool] = mapped_column(
+        Integer,
+        default=True,
+        comment="课程状态(1-已提交/2-审核通过/3-审核不通过/4-公开/0-隐藏)",
+    )
     course_date: Mapped[CourseDate] = mapped_column(
         JSON, nullable=False, comment="课程时间"
     )

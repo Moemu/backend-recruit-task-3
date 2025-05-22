@@ -4,6 +4,7 @@ import fastapi
 from fastapi.exceptions import HTTPException
 from models.course import Course, CourseDate, CourseType
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -46,7 +47,7 @@ class CourseRepository:
         :param status: 课程状态
         """
         courses = await self.session.execute(select(func.count(Course.id)))
-        total_courses = courses.scalar() or 1
+        total_courses = (courses.scalar() or 0) + 1
         course_no = f"CS{total_courses:03d}"
         course = Course(
             course_no=course_no,
@@ -61,7 +62,14 @@ class CourseRepository:
             status=status,
         )
         self.session.add(course)
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            await self.session.rollback()
+            raise HTTPException(
+                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+                detail="Course already exists",
+            )
         return course
 
     async def edit_course(

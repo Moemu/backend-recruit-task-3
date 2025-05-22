@@ -4,6 +4,8 @@ from models.user import User, UserRole
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from .course import Course
+
 
 class UserRepository:
     def __init__(self, session: AsyncSession):
@@ -57,7 +59,7 @@ class UserRepository:
         if role == UserRole.student:
             account_number = f"{session:02d}{faculty:03d}{major:02d}{class_number:02d}{addition_order:02d}"
         else:
-            account_number = f"{session:02d}{faculty:02d}{addition_order:03d}"
+            account_number = f"{session:02d}{faculty:03d}{addition_order:04d}"
         user = User(
             username=username,
             password=password,
@@ -101,3 +103,23 @@ class UserRepository:
         """
         user.password = new_password
         await self.session.commit()
+
+    async def get_schedule(self, user: User, term: str) -> list[Course]:
+        """
+        获取用户的课程表
+
+        :param user: 用户对象
+        :param term: 学期
+        """
+        major_id = user.major_id
+        grade = user.grade
+        courses = await self.session.execute(
+            select(Course).where(
+                Course.major_id == major_id,
+                Course.grade == grade,
+                Course.course_date["term"] == term,
+                Course.status == 4,
+                Course.is_public == True,  # noqa: E712
+            )
+        )
+        return courses.scalars().all()  # type: ignore
