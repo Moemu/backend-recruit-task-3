@@ -4,12 +4,23 @@ from datetime import datetime
 import sqlalchemy
 from core.sql import Base
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Numeric, String
+from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column
+from typing_extensions import TypedDict
 
 
 class CourseType(int, enum.Enum):
     CORE = 0
     ELECTIVE = 1
+
+
+class CourseDate(TypedDict):
+    term: str
+    start_week: int
+    end_week: int
+    is_double_week: bool
+    week_day: int
+    section: list[int]
 
 
 class Course(Base):
@@ -35,6 +46,10 @@ class Course(Base):
     credit: Mapped[float] = mapped_column(Numeric, nullable=False, comment="学分")
     is_public: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否公开")
     status: Mapped[bool] = mapped_column(Boolean, default=True, comment="课程正常状态")
+    course_date: Mapped[CourseDate] = mapped_column(
+        JSON, nullable=False, comment="课程时间"
+    )
+
     create_time: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,

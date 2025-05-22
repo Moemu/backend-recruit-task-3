@@ -2,7 +2,7 @@ from typing import Optional
 
 import fastapi
 from fastapi.exceptions import HTTPException
-from models.course import Course, CourseType
+from models.course import Course, CourseDate, CourseType
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -28,6 +28,7 @@ class CourseRepository:
         grade: int,
         course_type: CourseType,
         credit: float,
+        course_date: CourseDate,
         is_public: bool = True,
         status: bool = True,
     ):
@@ -39,12 +40,13 @@ class CourseRepository:
         :param major_id: 专业ID
         :param grade: 年级
         :param course_type: 课程类型(0-必修, 1-选修)
+        :param course_date: 课程时间
         :param credit: 学分
         :param is_public: 是否公开
         :param status: 课程状态
         """
         courses = await self.session.execute(select(func.count(Course.id)))
-        total_courses = courses.scalar() or 0
+        total_courses = courses.scalar() or 1
         course_no = f"CS{total_courses:03d}"
         course = Course(
             course_no=course_no,
@@ -54,6 +56,7 @@ class CourseRepository:
             grade=grade,
             course_type=course_type.value,
             credit=credit,
+            course_date=course_date,
             is_public=is_public,
             status=status,
         )
@@ -69,6 +72,7 @@ class CourseRepository:
         major_id: int,
         grade: int,
         course_type: CourseType,
+        course_date: CourseDate,
         credit: float,
         is_public: bool = True,
         status: bool = True,
@@ -82,6 +86,7 @@ class CourseRepository:
         :param major_id: 专业ID
         :param grade: 年级
         :param course_type: 课程类型(0-必修, 1-选修)
+        :param course_date: 课程时间
         :param credit: 学分
         :param is_public: 是否公开
         :param status: 课程状态
@@ -96,6 +101,7 @@ class CourseRepository:
         course.major_id = major_id
         course.grade = grade
         course.course_type = course_type.value
+        course.course_date = course_date
         course.credit = credit
         course.is_public = is_public
         course.status = status

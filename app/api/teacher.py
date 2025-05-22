@@ -3,38 +3,36 @@ from typing import Annotated
 from api._auth import check_and_get_current_teacher
 from deps import get_db
 from fastapi import APIRouter, Depends, HTTPException
-from models.course import CourseType
 from models.user import User
 from repositories.course import CourseRepository
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from .models import CourseCreateRequest, CourseUpdateRequest
 
 router = APIRouter()
 
 
 @router.post("/add", tags=["course"])
 async def add_course(
-    course_name: str,
-    major_id: int,
-    grade: int,
-    course_type: CourseType,
-    credit: float,
-    is_public: bool,
+    course: CourseCreateRequest,
     current_user: Annotated[User, Depends(check_and_get_current_teacher)],
     db: AsyncSession = Depends(get_db),
 ):
     repo = CourseRepository(db)
-    course = await repo.create_course(
-        course_name=course_name,
+
+    result = await repo.create_course(
+        course_name=course.course_name,
         teacher_id=current_user.id,
-        major_id=major_id,
-        grade=grade,
-        course_type=course_type,
-        credit=credit,
-        is_public=is_public,
+        major_id=course.major_id,
+        grade=course.grade,
+        course_type=course.course_type,
+        course_date=course.course_date,
+        credit=course.credit,
+        is_public=course.is_public,
     )
-    if not course:
+    if not result:
         raise HTTPException(status_code=400, detail="Failed to create course")
-    return {"msg": "Course created successfully", "course_no": course.course_no}
+    return {"msg": "Course created successfully", "course_no": result.course_no}
 
 
 @router.post("/info", tags=["course"])
@@ -52,29 +50,24 @@ async def get_course_info(
 
 @router.post("/edit", tags=["course"])
 async def edit_course(
-    course_no: str,
-    course_name: str,
-    major_id: int,
-    grade: int,
-    course_type: CourseType,
-    credit: float,
-    is_public: bool,
+    course: CourseUpdateRequest,
     current_user: Annotated[User, Depends(check_and_get_current_teacher)],
     db: AsyncSession = Depends(get_db),
 ):
     repo = CourseRepository(db)
-    course = await repo.edit_course(
-        course_no=course_no,
-        course_name=course_name,
+    result = await repo.edit_course(
+        course_no=course.course_no,
+        course_name=course.course_name,
         teacher_id=current_user.id,
-        major_id=major_id,
-        grade=grade,
-        course_type=course_type,
-        credit=credit,
-        is_public=is_public,
+        major_id=course.major_id,
+        grade=course.grade,
+        course_type=course.course_type,
+        course_date=course.course_date,
+        credit=course.credit,
+        is_public=course.is_public,
     )
 
-    if not course:
+    if not result:
         raise HTTPException(status_code=400, detail="Failed to update course")
 
     return {"msg": "Course updated successfully", "course_no": course.course_no}
