@@ -1,5 +1,3 @@
-import asyncio
-
 from core.config import config
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
@@ -13,7 +11,7 @@ _engine = create_async_engine(config.db_url, echo=True, pool_pre_ping=True)
 async_session = async_sessionmaker(_engine, expire_on_commit=False)
 
 
-async def _init_models():
+async def load_db():
     """
     初始化表
     """
@@ -21,4 +19,8 @@ async def _init_models():
         await conn.run_sync(Base.metadata.create_all)
 
 
-asyncio.run(_init_models())
+async def close_db():
+    """
+    关闭数据库连接
+    """
+    await _engine.dispose()

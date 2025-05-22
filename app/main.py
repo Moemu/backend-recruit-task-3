@@ -1,15 +1,23 @@
+from contextlib import asynccontextmanager
+
 from api import auth, student, teacher
 from core.config import config
+from core.sql import close_db, load_db
 from fastapi import FastAPI
 
 # from app.core.config import settings
-# from app.utils.exceptions import register_exception_handlers  # 可选
 
 
-app = FastAPI(title=config.title, version=config.version)
+# 启动/关闭事件
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await load_db()
+    yield
+    await close_db()
 
-# 注册异常处理器（可选）
-# register_exception_handlers(app)
+
+app = FastAPI(title=config.title, version=config.version, lifespan=lifespan)
+
 
 # 注册 API 路由
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
@@ -17,14 +25,6 @@ app.include_router(student.router, prefix="/api/student", tags=["student"])
 app.include_router(teacher.router, prefix="/api/course", tags=["course"])
 # app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 
-# 启动/关闭事件（可选）
-# @app.on_event("startup")
-# async def startup_event():
-#     print("🚀 教务系统启动")
-
-# @app.on_event("shutdown")
-# async def shutdown_event():
-#     print("🛑 教务系统关闭")
 
 if __name__ == "__main__":
     import uvicorn
