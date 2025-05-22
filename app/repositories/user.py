@@ -1,7 +1,7 @@
-from typing import Literal, Optional
+from typing import Optional
 
 from models.user import User, UserRole
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
@@ -18,8 +18,26 @@ class UserRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_addition_order(self, role: UserRole) -> int:
+        """
+        获取当前的添加顺序
+        """
+        user = await self.session.execute(
+            select(func.count(User.id)).where(User.role == role)
+        )
+        total_users = user.scalar() or 1
+        return total_users
+
     async def create_user(
-        self, username: str, password: str, role: UserRole, status: Literal[0, 1] = 0
+        self,
+        username: str,
+        password: str,
+        role: UserRole,
+        session: int,
+        faculty: int,
+        major: Optional[int] = None,
+        class_number: Optional[int] = None,
+        status: bool = True,
     ) -> Optional[User]:
         """
         创建一个用户
@@ -27,11 +45,26 @@ class UserRepository:
         :param username: 用户名
         :param password: 用户哈希密钥
         :param role: 用户角色(student/teacher/admin)
-        :param status: 用户状态(0-正常/1-禁用)
+        :param session: 学年
+        :param faculty: 院系ID
+        :param major: 专业ID
+        :param class_number: 班级ID
+        :param status: 用户状态(正常/禁用)
         """
         if await self.get_by_name(username):
             return None
-        user = User(username=username, password=password, role=role, status=status)
+        addition_order = await self.get_addition_order(role)
+        if role == UserRole.student:
+            account_number = f"{session:02d}{faculty:03d}{major:02d}{class_number:02d}{addition_order:02d}"
+        else:
+            account_number = f"{session:02d}{faculty:02d}{addition_order:03d}"
+        user = User(
+            username=username,
+            password=password,
+            account_number=account_number,
+            role=role,
+            status=status,
+        )
         self.session.add(user)
         await self.session.commit()
         return user

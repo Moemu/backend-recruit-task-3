@@ -1,6 +1,6 @@
 import time
 from datetime import timedelta
-from typing import Annotated
+from typing import Annotated, Optional
 
 import jwt
 from core.config import config
@@ -59,14 +59,24 @@ async def logout(
 
 @router.post("/register", tags=["auth"])
 async def register(
+    session: int,
+    faculty: int,
+    major: Optional[int] = None,
+    class_number: Optional[int] = None,
+    role: UserRole = UserRole.student,
     form_data: OAuth2PasswordRequestForm = Depends(),
     db: AsyncSession = Depends(get_db),
-    role: UserRole = UserRole.student,
 ):
     repo = UserRepository(db)
     hash_password = get_password_hash(form_data.password)
     if await repo.create_user(
-        username=form_data.username, password=hash_password, role=role
+        username=form_data.username,
+        password=hash_password,
+        session=session,
+        faculty=faculty,
+        major=major,
+        class_number=class_number,
+        role=role,
     ):
         return {"success": True, "msg": "User created successfully"}
 
