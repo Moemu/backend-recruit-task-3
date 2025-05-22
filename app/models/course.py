@@ -1,26 +1,11 @@
-import enum
 from datetime import datetime
 
 import sqlalchemy
 from core.sql import Base
+from schemas.course import CourseDate
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Numeric, String
 from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column
-from typing_extensions import TypedDict
-
-
-class CourseType(int, enum.Enum):
-    CORE = 0
-    ELECTIVE = 1
-
-
-class CourseDate(TypedDict):
-    term: str
-    start_week: int
-    end_week: int
-    is_double_week: bool
-    week_day: int
-    section: list[int]
 
 
 class Course(Base):

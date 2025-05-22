@@ -5,8 +5,6 @@ from core.config import config
 from core.sql import close_db, load_db
 from fastapi import FastAPI
 
-# from app.core.config import settings
-
 
 # 启动/关闭事件
 @asynccontextmanager

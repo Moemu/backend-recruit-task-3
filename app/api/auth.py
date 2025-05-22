@@ -4,22 +4,19 @@ from typing import Annotated, Optional
 
 import jwt
 from core.config import config
-from deps import get_db
+from deps.auth import get_current_user, get_db, oauth2_scheme
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
 from models.user import User, UserRole
 from repositories.user import UserRepository
-from services.token_blacklist import add_token_to_blacklist
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from ._auth import (  # get_current_user,
+from schemas.auth import Payload
+from services.auth_service import (
     authenticate_user,
     create_access_token,
-    get_current_user,
     get_password_hash,
-    oauth2_scheme,
 )
-from .models import Payload, Token
+from services.token_blacklist import add_token_to_blacklist
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
 
@@ -40,7 +37,7 @@ async def login(
     access_token = create_access_token(
         payload=Payload(sub=user.username), expires_delta=access_token_expires
     )
-    return Token(access_token=access_token, token_type="bearer")
+    return {"access_token": access_token, "token_type": "bearer"}
 
 
 @router.post("/logout", tags=["auth"])

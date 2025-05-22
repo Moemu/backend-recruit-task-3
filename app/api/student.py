@@ -1,13 +1,13 @@
 from typing import Annotated
 
-from api._auth import check_and_get_current_student
-from deps import get_db
+from deps.auth import check_and_get_current_student, oauth2_scheme
+from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException
 from models.user import User
 from repositories.user import UserRepository
+from services.auth_service import get_password_hash, verify_password
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ._auth import get_password_hash, oauth2_scheme, verify_password
 from .auth import logout
 
 router = APIRouter()

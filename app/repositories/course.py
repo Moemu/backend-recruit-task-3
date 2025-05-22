@@ -2,7 +2,8 @@ from typing import Optional
 
 import fastapi
 from fastapi.exceptions import HTTPException
-from models.course import Course, CourseDate, CourseType
+from models.course import Course
+from schemas.course import CourseDate, CourseType
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession

@@ -1,13 +1,12 @@
 from typing import Annotated
 
-from api._auth import check_and_get_current_teacher
-from deps import get_db
+from deps.auth import check_and_get_current_teacher
+from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException
 from models.user import User
 from repositories.course import CourseRepository
+from schemas.course import CourseCreateRequest, CourseUpdateRequest
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from .models import CourseCreateRequest, CourseUpdateRequest
 
 router = APIRouter()
 
