@@ -27,7 +27,7 @@ class User(Base):
         BigInteger, primary_key=True, index=True, autoincrement=True, comment="主键ID"
     )
     username: Mapped[str] = mapped_column(
-        String(50), unique=True, nullable=False, comment="用户名"
+        String(12), unique=True, nullable=False, comment="用户ID"
     )
     password: Mapped[str] = mapped_column(String(100), nullable=False, comment="密码")
     role: Mapped[UserRole] = mapped_column(
@@ -37,15 +37,11 @@ class User(Base):
         Boolean, nullable=False, default=True, comment="状态(正常/禁用)"
     )
 
-    major_id: Mapped[int] = mapped_column(BigInteger, nullable=True, comment="专业ID")
-    grade: Mapped[int] = mapped_column(Integer, nullable=True, comment="年级")
-
-    account_number: Mapped[str] = mapped_column(
-        String(12),
-        unique=True,
-        nullable=False,
-        comment="账号格式",
-    )
+    name: Mapped[str] = mapped_column(String(12), nullable=False, comment="姓名")
+    session: Mapped[int] = mapped_column(Integer, nullable=False, comment="届号")
+    faculty: Mapped[int] = mapped_column(Integer, nullable=False, comment="院系ID")
+    major: Mapped[int] = mapped_column(BigInteger, nullable=True, comment="专业ID")
+    class_number: Mapped[int] = mapped_column(Integer, nullable=True, comment="班级ID")
 
     create_time: Mapped[datetime] = mapped_column(
         DateTime,

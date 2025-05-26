@@ -23,14 +23,14 @@ class Course(Base):
     teacher_id: Mapped[int] = mapped_column(
         BigInteger, nullable=False, comment="教师ID"
     )
-    major_id: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="专业ID")
-    grade: Mapped[int] = mapped_column(Integer, nullable=False, comment="年级")
+    major: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="专业ID")
+    session: Mapped[int] = mapped_column(Integer, nullable=False, comment="年级")
     course_type: Mapped[int] = mapped_column(
         Integer, nullable=False, comment="课程类型(0-必修, 1-选修)"
     )
     credit: Mapped[float] = mapped_column(Numeric, nullable=False, comment="学分")
     is_public: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否公开")
-    status: Mapped[bool] = mapped_column(
+    status: Mapped[int] = mapped_column(
         Integer,
         default=True,
         comment="课程状态(1-已提交/2-审核通过/3-审核不通过/4-公开/0-隐藏)",

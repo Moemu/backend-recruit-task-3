@@ -1,7 +1,8 @@
 import enum
-from typing import TypedDict
+from typing import Optional
 
 from pydantic import BaseModel
+from typing_extensions import TypedDict
 
 
 class CourseType(int, enum.Enum):
@@ -20,8 +21,8 @@ class CourseDate(TypedDict):
 
 class CourseCreateRequest(BaseModel):
     course_name: str
-    major_id: int
-    grade: int
+    major: int
+    session: int
     course_type: CourseType
     course_date: CourseDate
     credit: float
@@ -30,10 +31,10 @@ class CourseCreateRequest(BaseModel):
 
 class CourseUpdateRequest(BaseModel):
     course_no: str
-    course_name: str
-    major_id: int
-    grade: int
-    course_type: CourseType
-    course_date: CourseDate
-    credit: float
-    is_public: bool
+    course_name: Optional[str] = None
+    major: Optional[int] = None
+    session: Optional[int] = None
+    course_type: Optional[CourseType] = None
+    course_date: Optional[CourseDate] = None
+    credit: Optional[float] = None
+    is_public: Optional[bool] = None

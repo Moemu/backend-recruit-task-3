@@ -1,9 +1,9 @@
-from typing import Annotated
+from typing import Annotated, Optional
 
-from deps.auth import check_and_get_current_student, oauth2_scheme
+from deps.auth import check_and_get_current_role, oauth2_scheme
 from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException
-from models.user import User
+from models.user import User, UserRole
 from repositories.user import UserRepository
 from services.auth_service import get_password_hash, verify_password
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,6 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from .auth import logout
 
 router = APIRouter()
+check_and_get_current_student = check_and_get_current_role(UserRole.student)
 
 
 @router.post("/info", tags=["student"])
@@ -24,23 +25,24 @@ async def get_info(
 
 @router.post("/edit", tags=["student"])
 async def edit_info(
-    username: str,
-    status: bool,
-    major_id: int,
-    grade: int,
-    current_user: Annotated[User, Depends(check_and_get_current_student)],
+    user: Annotated[User, Depends(check_and_get_current_student)],
+    name: Optional[str] = None,
+    session: Optional[int] = None,
+    faculty: Optional[int] = None,
+    major: Optional[int] = None,
+    class_number: Optional[int] = None,
     db: AsyncSession = Depends(get_db),
 ):
     repo = UserRepository(db)
-    user = await repo.get_by_name(current_user.username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     await repo.edit_info(
         user=user,
-        username=username,
-        status=status,
-        major_id=major_id,
-        grade=grade,
+        name=name,
+        session=session,
+        faculty=faculty,
+        major=major,
+        class_number=class_number,
     )
     return {"msg": "User updated successfully"}
 

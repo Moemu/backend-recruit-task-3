@@ -4,6 +4,7 @@ from typing import Optional
 import jwt
 from core.config import config
 from models.user import User
+from passlib import pwd
 from passlib.context import CryptContext
 from repositories.user import UserRepository
 from schemas.auth import Payload
@@ -34,3 +35,7 @@ async def authenticate_user(
     if user and verify_password(password, user.password):
         return user
     return None
+
+
+def generate_random_password(length: int = 8) -> str:
+    return pwd.genword(length=length, charset="ascii_62")

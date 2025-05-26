@@ -1,19 +1,18 @@
 import time
 from datetime import timedelta
-from typing import Annotated, Optional
+from typing import Annotated
 
 import jwt
 from core.config import config
 from deps.auth import get_current_user, get_db, oauth2_scheme
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from models.user import User, UserRole
+from models.user import User
 from repositories.user import UserRepository
 from schemas.auth import Payload
 from services.auth_service import (
     authenticate_user,
     create_access_token,
-    get_password_hash,
 )
 from services.token_blacklist import add_token_to_blacklist
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -52,32 +51,3 @@ async def logout(
     ttl = exp - now
     await add_token_to_blacklist(jti, ttl)
     return {"msg": "Logged out"}
-
-
-@router.post("/register", tags=["auth"])
-async def register(
-    session: int,
-    faculty: int,
-    major: Optional[int] = None,
-    class_number: Optional[int] = None,
-    role: UserRole = UserRole.student,
-    form_data: OAuth2PasswordRequestForm = Depends(),
-    db: AsyncSession = Depends(get_db),
-):
-    repo = UserRepository(db)
-    hash_password = get_password_hash(form_data.password)
-    if await repo.create_user(
-        username=form_data.username,
-        password=hash_password,
-        session=session,
-        faculty=faculty,
-        major=major,
-        class_number=class_number,
-        role=role,
-    ):
-        return {"success": True, "msg": "User created successfully"}
-
-    raise HTTPException(
-        status_code=status.HTTP_400_BAD_REQUEST,
-        detail="User already exists",
-    )

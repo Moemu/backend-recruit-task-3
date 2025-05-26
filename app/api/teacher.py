@@ -1,14 +1,15 @@
 from typing import Annotated
 
-from deps.auth import check_and_get_current_teacher
+from deps.auth import check_and_get_current_role
 from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException
-from models.user import User
+from models.user import User, UserRole
 from repositories.course import CourseRepository
 from schemas.course import CourseCreateRequest, CourseUpdateRequest
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter()
+check_and_get_current_teacher = check_and_get_current_role(role=UserRole.teacher)
 
 
 @router.post("/add", tags=["course"])
@@ -22,8 +23,8 @@ async def add_course(
     result = await repo.create_course(
         course_name=course.course_name,
         teacher_id=current_user.id,
-        major_id=course.major_id,
-        grade=course.grade,
+        major=course.major,
+        session=course.session,
         course_type=course.course_type,
         course_date=course.course_date,
         credit=course.credit,
@@ -58,8 +59,8 @@ async def edit_course(
         course_no=course.course_no,
         course_name=course.course_name,
         teacher_id=current_user.id,
-        major_id=course.major_id,
-        grade=course.grade,
+        major=course.major,
+        session=course.session,
         course_type=course.course_type,
         course_date=course.course_date,
         credit=course.credit,
@@ -86,7 +87,7 @@ async def delete_course(
 @router.post("/status", tags=["course"])
 async def set_course_status(
     course_no: str,
-    status: bool,
+    status: int,
     current_user: Annotated[User, Depends(check_and_get_current_teacher)],
     db: AsyncSession = Depends(get_db),
 ):

@@ -26,8 +26,8 @@ class CourseRepository:
         self,
         course_name: str,
         teacher_id: int,
-        major_id: int,
-        grade: int,
+        major: int,
+        session: int,
         course_type: CourseType,
         credit: float,
         course_date: CourseDate,
@@ -39,8 +39,8 @@ class CourseRepository:
 
         :param course_name: 课程名称
         :param teacher_id: 任教教师ID
-        :param major_id: 专业ID
-        :param grade: 年级
+        :param major: 专业ID
+        :param session: 年级
         :param course_type: 课程类型(0-必修, 1-选修)
         :param course_date: 课程时间
         :param credit: 学分
@@ -54,8 +54,8 @@ class CourseRepository:
             course_no=course_no,
             course_name=course_name,
             teacher_id=teacher_id,
-            major_id=major_id,
-            grade=grade,
+            major=major,
+            session=session,
             course_type=course_type.value,
             credit=credit,
             course_date=course_date,
@@ -76,15 +76,15 @@ class CourseRepository:
     async def edit_course(
         self,
         course_no: str,
-        course_name: str,
-        teacher_id: int,
-        major_id: int,
-        grade: int,
-        course_type: CourseType,
-        course_date: CourseDate,
-        credit: float,
-        is_public: bool = True,
-        status: bool = True,
+        course_name: Optional[str] = None,
+        teacher_id: Optional[int] = None,
+        major: Optional[int] = None,
+        session: Optional[int] = None,
+        course_type: Optional[CourseType] = None,
+        course_date: Optional[CourseDate] = None,
+        credit: Optional[float] = None,
+        is_public: Optional[bool] = None,
+        status: Optional[bool] = None,
     ):
         """
         修改一个课程
@@ -92,7 +92,7 @@ class CourseRepository:
         :param couse_no: 课程编号
         :param course_name: 课程名称
         :param teacher_id: 任教教师ID
-        :param major_id: 专业ID
+        :param major: 专业ID
         :param grade: 年级
         :param course_type: 课程类型(0-必修, 1-选修)
         :param course_date: 课程时间
@@ -105,15 +105,15 @@ class CourseRepository:
                 status_code=fastapi.status.HTTP_404_NOT_FOUND,
                 detail="Incorrect course_no",
             )
-        course.course_name = course_name
-        course.teacher_id = teacher_id
-        course.major_id = major_id
-        course.grade = grade
-        course.course_type = course_type.value
-        course.course_date = course_date
-        course.credit = credit
-        course.is_public = is_public
-        course.status = status
+        course.course_name = course_name or course.course_name
+        course.teacher_id = teacher_id or course.teacher_id
+        course.major = major or course.major
+        course.session = session or course.session
+        course.course_type = course_type.value if course_type else course.course_type
+        course.course_date = course_date or course.course_date
+        course.credit = credit or course.credit
+        course.is_public = is_public or course.is_public
+        course.status = status or course.status
         await self.session.commit()
         return course
 
@@ -132,7 +132,7 @@ class CourseRepository:
         await self.session.commit()
         return True
 
-    async def set_status(self, course_no: str, status: bool):
+    async def set_status(self, course_no: str, status: int):
         """
         设置课程状态
 

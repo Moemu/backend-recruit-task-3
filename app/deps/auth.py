@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Callable, Coroutine
 
 import jwt
 from core.config import config
@@ -47,21 +47,16 @@ async def get_current_user(
     return user
 
 
-async def check_and_get_current_teacher(
-    db: Annotated[AsyncSession, Depends(get_db)],
-    token: Annotated[str, Depends(oauth2_scheme)],
-) -> User:
-    user = await get_current_user(db, token)
-    if user.role == UserRole.student:
-        raise HTTPException(status_code=403, detail="Permission denied")
-    return user
+def check_and_get_current_role(
+    role: UserRole,
+) -> Callable[..., Coroutine[None, None, User]]:
+    async def wrapper(
+        db: Annotated[AsyncSession, Depends(get_db)],
+        token: Annotated[str, Depends(oauth2_scheme)],
+    ) -> User:
+        user = await get_current_user(db, token)
+        if user.role != role:
+            raise HTTPException(status_code=403, detail="Permission denied")
+        return user
 
-
-async def check_and_get_current_student(
-    db: Annotated[AsyncSession, Depends(get_db)],
-    token: Annotated[str, Depends(oauth2_scheme)],
-) -> User:
-    user = await get_current_user(db, token)
-    if user.role != UserRole.student:
-        raise HTTPException(status_code=403, detail="Permission denied")
-    return user
+    return wrapper
