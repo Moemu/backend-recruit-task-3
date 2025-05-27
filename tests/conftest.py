@@ -53,7 +53,7 @@ async def test_admin(user_repo: UserRepository) -> User:
 async def test_user(user_repo: UserRepository) -> User:
     user = await user_repo.create_user(
         name="test_user",
-        password="123456",
+        password=get_password_hash("123456"),
         role=UserRole.student,
         session=0,
         faculty=0,
