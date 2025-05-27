@@ -1,4 +1,4 @@
-from core.redis import redis_client
+from app.core.redis import redis_client
 
 BLACKLIST_PREFIX = "token_blacklist:"
 

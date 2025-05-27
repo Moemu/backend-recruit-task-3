@@ -2,16 +2,18 @@ from datetime import datetime
 from typing import Annotated, Callable, Coroutine
 
 import jwt
-from core.config import config
-from deps.sql import get_db
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
-from models.user import User, UserRole
-from repositories.user import UserRepository
-from schemas.auth import Payload
-from services.token_blacklist import is_token_blacklisted
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import config
+from app.models.user import User, UserRole
+from app.repositories.user import UserRepository
+from app.schemas.auth import Payload
+from app.services.token_blacklist import is_token_blacklisted
+
+from .sql import get_db
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="./login")
 

@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
 
-from api import admin, auth, student, teacher
-from core.config import config
-from core.sql import close_db, load_db
 from fastapi import FastAPI
+
+from app.api import admin, auth, student, teacher
+from app.core.config import config
+from app.core.sql import close_db, load_db
 
 
 # 启动/关闭事件

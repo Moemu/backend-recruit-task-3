@@ -1,13 +1,14 @@
 from typing import Annotated
 
-from deps.auth import check_and_get_current_role
-from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
-from models.user import User, UserRole
-from repositories.user import UserRepository
-from schemas.admin import EditRequest, RegisterRequest, RegisterResponse
-from services.auth_service import generate_random_password, get_password_hash
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.deps.auth import check_and_get_current_role
+from app.deps.sql import get_db
+from app.models.user import User, UserRole
+from app.repositories.user import UserRepository
+from app.schemas.admin import EditRequest, RegisterRequest, RegisterResponse
+from app.services.auth_service import generate_random_password, get_password_hash
 
 router = APIRouter()
 get_current_admin = check_and_get_current_role(role=UserRole.admin)

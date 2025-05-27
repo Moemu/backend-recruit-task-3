@@ -2,12 +2,13 @@ from datetime import datetime, timedelta, timezone
 from typing import Optional
 
 import jwt
-from core.config import config
-from models.user import User
 from passlib import pwd
 from passlib.context import CryptContext
-from repositories.user import UserRepository
-from schemas.auth import Payload
+
+from app.core.config import config
+from app.models.user import User
+from app.repositories.user import UserRepository
+from app.schemas.auth import Payload
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

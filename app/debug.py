@@ -1,14 +1,14 @@
-from core.logger import logger
-from deps.sql import get_db
-from models.user import UserRole
-from repositories.user import UserRepository
-from services.auth_service import get_password_hash
+from app.core.logger import logger
+from app.deps.sql import get_db
+from app.models.user import UserRole
+from app.repositories.user import UserRepository
+from app.services.auth_service import get_password_hash
 
 ADMIN_NAME = "admin"
 ADMIN_PWD = "123456"
 
 
-async def create_a_debug_admin():
+async def create_a_debug_admin(username=ADMIN_NAME, password=ADMIN_PWD):
     async for db in get_db():
         repo = UserRepository(db)
 

@@ -1,11 +1,12 @@
 from datetime import datetime
 
 import sqlalchemy
-from core.sql import Base
-from schemas.course import CourseDate
 from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Numeric, String
 from sqlalchemy.dialects.mysql import JSON
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.core.sql import Base
+from app.schemas.course import CourseDate
 
 
 class Course(Base):

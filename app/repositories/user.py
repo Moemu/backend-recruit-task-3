@@ -1,8 +1,9 @@
 from typing import Optional
 
-from models.user import User, UserRole
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.models.user import User, UserRole
 
 from .course import Course
 

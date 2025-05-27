@@ -1,12 +1,13 @@
 from typing import Annotated
 
-from deps.auth import check_and_get_current_role
-from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException
-from models.user import User, UserRole
-from repositories.course import CourseRepository
-from schemas.course import CourseCreateRequest, CourseUpdateRequest
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.deps.auth import check_and_get_current_role
+from app.deps.sql import get_db
+from app.models.user import User, UserRole
+from app.repositories.course import CourseRepository
+from app.schemas.course import CourseCreateRequest, CourseUpdateRequest
 
 router = APIRouter()
 check_and_get_current_teacher = check_and_get_current_role(role=UserRole.teacher)

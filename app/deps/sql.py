@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 
-from core.sql import async_session
+from app.core.sql import async_session
 
 
 async def get_db() -> AsyncGenerator:

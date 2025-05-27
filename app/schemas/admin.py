@@ -1,7 +1,8 @@
 from typing import Optional
 
-from models.user import UserRole
 from pydantic import BaseModel, Field
+
+from app.models.user import UserRole
 
 
 class RegisterRequest(BaseModel):

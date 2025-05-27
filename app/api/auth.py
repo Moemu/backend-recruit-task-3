@@ -3,19 +3,20 @@ from datetime import timedelta
 from typing import Annotated
 
 import jwt
-from core.config import config
-from deps.auth import get_current_user, get_db, oauth2_scheme
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
-from models.user import User
-from repositories.user import UserRepository
-from schemas.auth import Payload
-from services.auth_service import (
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import config
+from app.deps.auth import get_current_user, get_db, oauth2_scheme
+from app.models.user import User
+from app.repositories.user import UserRepository
+from app.schemas.auth import Payload
+from app.services.auth_service import (
     authenticate_user,
     create_access_token,
 )
-from services.token_blacklist import add_token_to_blacklist
-from sqlalchemy.ext.asyncio import AsyncSession
+from app.services.token_blacklist import add_token_to_blacklist
 
 router = APIRouter()
 

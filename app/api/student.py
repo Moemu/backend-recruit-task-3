@@ -1,12 +1,13 @@
 from typing import Annotated, Optional
 
-from deps.auth import check_and_get_current_role, oauth2_scheme
-from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException
-from models.user import User, UserRole
-from repositories.user import UserRepository
-from services.auth_service import get_password_hash, verify_password
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.deps.auth import check_and_get_current_role, oauth2_scheme
+from app.deps.sql import get_db
+from app.models.user import User, UserRole
+from app.repositories.user import UserRepository
+from app.services.auth_service import get_password_hash, verify_password
 
 from .auth import logout
 

@@ -2,7 +2,6 @@ import enum
 from datetime import datetime
 
 import sqlalchemy
-from core.sql import Base
 from sqlalchemy import (
     BigInteger,
     Boolean,
@@ -12,6 +11,8 @@ from sqlalchemy import (
     String,
 )
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.core.sql import Base
 
 
 class UserRole(str, enum.Enum):
