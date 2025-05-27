@@ -4,6 +4,7 @@
 
 ![Black CodeStyle](https://img.shields.io/badge/Code%20Style-Black-121110.svg)
 ![wakatime](https://wakatime.com/badge/user/637d5886-8b47-4b82-9264-3b3b9d6add67/project/eed23219-e0a5-47c4-a854-5f852b211047.svg)
+![coverage](./src/coverage.svg)
 
 [🏨Level 1](https://github.com/Moemu/backend-recruit-task) | [🐍Level 2](https://github.com/Moemu/backend-recruit-task-2) | 📕Level 3
 
@@ -143,7 +144,7 @@ log_level: INFO
 title: 呱呱学术管家
 version: 1.0.0
 host: 127.0.0.0
-port: 8000
+port: 8080
 
 # JWT 配置
 secret_key: 82ec285b5f0670c852c2e16d9776c5d17bd89a5f1dc09cdab5374a8a9ec7aa11
@@ -161,6 +162,22 @@ redis_port: 6379
 ## API 文档
 
 [APIfox 在线文档](https://apifox.com/apidoc/shared-b29cd1cb-b0aa-4f9b-af29-23a55ca6bba3)
+
+FastAPI 文档: `http://localhost:8080/docs` (其中 `localhost:8080` 为 API 服务器)
+
+## 单元测试
+
+一般测试:
+
+```
+pytest
+```
+
+代码覆盖率测试:
+
+```
+coverage run -m pytest
+```
 
 ## 目录结构
 
