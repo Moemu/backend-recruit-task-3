@@ -124,6 +124,16 @@ class UserRepository:
         user.password = new_password
         await self.session.commit()
 
+    def _term_filter(self, course_date_column, term):
+        """
+        term json 对象过滤器
+        """
+        bind = self.session.get_bind()
+        if bind.dialect.name == "sqlite":
+            return course_date_column["term"] == f'"{term}"'
+        else:
+            return course_date_column["term"] == term
+
     async def get_schedule(self, user: User, term: str) -> list[Course]:
         """
         获取用户的课程表
@@ -137,7 +147,7 @@ class UserRepository:
             select(Course).where(
                 Course.major == major,
                 Course.session == session,
-                Course.course_date["term"] == term,
+                self._term_filter(Course.course_date, term),
                 Course.status == 4,
                 Course.is_public == True,  # noqa: E712
             )

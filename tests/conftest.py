@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.deps.sql import get_db as get_sql_db
 from app.main import app
 from app.models.user import User, UserRole
+from app.repositories.course import CourseRepository
 from app.repositories.user import UserRepository
 from app.services.auth_service import get_password_hash
 
@@ -43,16 +44,9 @@ async def user_repo(database: AsyncSession) -> UserRepository:
 
 
 @pytest_asyncio.fixture
-async def test_admin(user_repo: UserRepository) -> User:
-    hashed_password = get_password_hash("123456")
-    admin = await user_repo.create_user(
-        name="test_admin",
-        password=hashed_password,
-        role=UserRole.admin,
-        session=0,
-        faculty=0,
-    )
-    return admin
+async def course_repo(database: AsyncSession) -> CourseRepository:
+    course = CourseRepository(database)
+    return course
 
 
 @pytest_asyncio.fixture
@@ -71,10 +65,76 @@ async def test_user(user_repo: UserRepository) -> User:
 
 
 @pytest_asyncio.fixture
-async def admin_client(async_client: AsyncClient, test_admin) -> AsyncClient:
+async def test_admin(user_repo: UserRepository) -> User:
+    hashed_password = get_password_hash("123456")
+    admin = await user_repo.create_user(
+        name="test_admin",
+        password=hashed_password,
+        role=UserRole.admin,
+        session=0,
+        faculty=0,
+    )
+    return admin
+
+
+@pytest_asyncio.fixture
+async def test_student(user_repo: UserRepository) -> User:
+    hashed_password = get_password_hash("123456")
+    user = await user_repo.create_user(
+        name="test_student",
+        password=hashed_password,
+        role=UserRole.student,
+        session=25,
+        faculty=5,
+        major=1,
+        class_number=2,
+    )
+    return user
+
+
+@pytest_asyncio.fixture
+async def test_teacher(user_repo: UserRepository) -> User:
+    hashed_password = get_password_hash("123456")
+    user = await user_repo.create_user(
+        name="test_teacher",
+        password=hashed_password,
+        role=UserRole.teacher,
+        session=24,
+        faculty=3,
+    )
+    return user
+
+
+@pytest_asyncio.fixture
+async def admin_client(async_client: AsyncClient, test_admin: User) -> AsyncClient:
     response = await async_client.post(
         "/api/auth/login",
         data={"username": test_admin.username, "password": "123456"},
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    access_token = response.json()["access_token"]
+    async_client.headers.update({"Authorization": f"Bearer {access_token}"})
+    return async_client
+
+
+@pytest_asyncio.fixture
+async def student_client(async_client: AsyncClient, test_student: User) -> AsyncClient:
+    response = await async_client.post(
+        "/api/auth/login",
+        data={"username": test_student.username, "password": "123456"},
+        headers={"Content-Type": "application/x-www-form-urlencoded"},
+    )
+    assert response.status_code == 200
+    access_token = response.json()["access_token"]
+    async_client.headers.update({"Authorization": f"Bearer {access_token}"})
+    return async_client
+
+
+@pytest_asyncio.fixture
+async def teacher_client(async_client: AsyncClient, test_teacher: User) -> AsyncClient:
+    response = await async_client.post(
+        "/api/auth/login",
+        data={"username": test_teacher.username, "password": "123456"},
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
     access_token = response.json()["access_token"]

@@ -44,7 +44,6 @@ async def test_batch_register(admin_client, user_repo):
             {"name": "test_bat3", "role": "admin", "session": 10, "faculty": 1},
         ],
     )
-    print(response.json())
     assert response.status_code == 200
     infos = response.json()["infos"]
     for info in infos:

@@ -33,7 +33,7 @@ class CourseRepository:
         credit: float,
         course_date: CourseDate,
         is_public: bool = True,
-        status: bool = True,
+        status: int = 1,
     ):
         """
         创建一个课程
