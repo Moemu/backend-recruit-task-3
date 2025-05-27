@@ -58,7 +58,6 @@ class UserRepository:
 
         :return: 用户对象
         """
-        print(name)
         if role == UserRole.student:
             prefix = f"{session:02d}{faculty:03d}{major:02d}{class_number:02d}"
             addition_order = await self.get_addition_order(prefix)

@@ -1,8 +1,7 @@
 from datetime import datetime
 
 import sqlalchemy
-from sqlalchemy import BigInteger, Boolean, DateTime, Integer, Numeric, String
-from sqlalchemy.dialects.mysql import JSON
+from sqlalchemy import JSON, BigInteger, Boolean, DateTime, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.sql import Base
@@ -13,7 +12,7 @@ class Course(Base):
     __tablename__ = "course"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, primary_key=True, index=True, autoincrement=True, comment="主键ID"
+        Integer, primary_key=True, index=True, autoincrement=True, comment="主键ID"
     )
     course_no: Mapped[str] = mapped_column(
         String(20), unique=True, nullable=False, comment="课程编号"

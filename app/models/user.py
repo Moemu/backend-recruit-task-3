@@ -25,7 +25,7 @@ class User(Base):
     __tablename__ = "user"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, primary_key=True, index=True, autoincrement=True, comment="主键ID"
+        Integer, primary_key=True, index=True, autoincrement=True, comment="主键ID"
     )
     username: Mapped[str] = mapped_column(
         String(12), unique=True, nullable=False, comment="用户ID"

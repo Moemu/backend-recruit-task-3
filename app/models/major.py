@@ -1,11 +1,7 @@
 from datetime import datetime
 
 import sqlalchemy
-from sqlalchemy import (
-    BigInteger,
-    DateTime,
-    String,
-)
+from sqlalchemy import BigInteger, DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.sql import Base
@@ -15,7 +11,7 @@ class Major(Base):
     __tablename__ = "major"
 
     id: Mapped[int] = mapped_column(
-        BigInteger, primary_key=True, index=True, autoincrement=True, comment="主键ID"
+        Integer, primary_key=True, index=True, autoincrement=True, comment="主键ID"
     )
     major_no: Mapped[str] = mapped_column(
         String(10), unique=True, nullable=False, comment="专业编号"
