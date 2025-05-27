@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Literal
 
@@ -59,9 +60,7 @@ def load_config() -> Config:
     config: dict = dict()
 
     if not CONFIG_PATH.exists():
-        from app.core.logger import logger
-
-        logger.warning("未找到 config.yml, 将使用默认配置，可能导致意外的后果!")
+        logging.warning("未找到 config.yml, 将使用默认配置，可能导致意外的后果!")
     else:
         with open(CONFIG_PATH, "r", encoding="utf-8") as f:
             config = yaml.load(f, Loader=yaml.FullLoader) or {}
