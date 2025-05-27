@@ -1,18 +1,18 @@
 from fastapi.testclient import TestClient
 
 from app.main import app
+from app.models.user import User
 
 client = TestClient(app)
 access_token: str = ""
 
 
-async def test_login(async_client, test_user):
+async def test_login(async_client, test_user: User):
     response = await async_client.post(
         "/api/auth/login",
-        data={"username": test_user.username, "password": test_user.password},
+        data={"username": test_user.username, "password": "123456"},
         headers={"Content-Type": "application/x-www-form-urlencoded"},
     )
-    print(response.json())
     assert response.status_code == 200
     assert "access_token" in response.json()
     global access_token

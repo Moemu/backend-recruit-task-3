@@ -1,11 +1,11 @@
+from database import async_session
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.sql import async_session_maker
-from app.models.user import User, UserRole
+from app.models.user import UserRole
 from app.repositories.user import UserRepository
 
-TEST_USERS: list[User] = []
+TEST_USERS: list[str] = []
 
 
 async def test_register(admin_client: AsyncClient, user_repo: UserRepository):
@@ -25,7 +25,7 @@ async def test_register(admin_client: AsyncClient, user_repo: UserRepository):
     username = response.json()["info"]["username"]
     user = await user_repo.get_by_name(username)
     assert user is not None
-    TEST_USERS.append(user)
+    TEST_USERS.append(user.username)
 
 
 async def test_batch_register(admin_client, user_repo):
@@ -50,7 +50,7 @@ async def test_batch_register(admin_client, user_repo):
     for info in infos:
         assert await user_repo.get_by_name(info["username"])
         user = await user_repo.get_by_name(info["username"])
-        TEST_USERS.append(user)
+        TEST_USERS.append(user.username)
 
 
 async def test_edit(admin_client, test_user, user_repo, database: AsyncSession):
@@ -83,16 +83,16 @@ async def test_info(admin_client: AsyncClient, test_user):
 
 
 async def test_delete(admin_client, user_repo: UserRepository):
-    for user in TEST_USERS:
+    for username in TEST_USERS:
         response = await admin_client.delete(
             "/api/admin/delete",
             params={
-                "username": user.username,
+                "username": username,
             },
         )
         assert response.status_code == 200
 
-        async with async_session_maker() as session:
+        async with async_session() as session:
             new_repo = UserRepository(session)
-            deleted_user = await new_repo.get_by_name(user.username)
+            deleted_user = await new_repo.get_by_name(username)
             assert deleted_user is None
