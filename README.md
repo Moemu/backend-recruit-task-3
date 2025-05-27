@@ -2,8 +2,10 @@
 
 *呱呱学术管家的 Python 实现*
 
+![Python](https://img.shields.io/badge/Python-3.10-blue)
 ![Black CodeStyle](https://img.shields.io/badge/Code%20Style-Black-121110.svg)
 ![wakatime](https://wakatime.com/badge/user/637d5886-8b47-4b82-9264-3b3b9d6add67/project/eed23219-e0a5-47c4-a854-5f852b211047.svg)
+[![Test and Coverage](https://github.com/Moemu/backend-recruit-task-3/actions/workflows/pytest.yaml/badge.svg)](https://github.com/Moemu/backend-recruit-task-3/actions/workflows/pytest.yaml)
 ![coverage](./src/coverage.svg)
 
 [🏨Level 1](https://github.com/Moemu/backend-recruit-task) | [🐍Level 2](https://github.com/Moemu/backend-recruit-task-2) | 📕Level 3
@@ -30,7 +32,8 @@
 - **文档**： APIfox
 - **代码规范**： Black, mypy 类型检查
 - **版本控制**： Git
-- **CI/CD**： Pre-commit hooks
+- **单元测试**: Pytest
+- **CI/CD**： Pre-commit hooks, Github Action
 
 ## 数据库设计
 
