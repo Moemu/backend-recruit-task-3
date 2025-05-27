@@ -9,3 +9,6 @@ httpx==0.28.1
 aiosqlite==0.21.0
 PyYAML==6.0.2
 aiomysql==0.2.0
+python-multipart==0.0.20
+asyncmy==0.2.10
+bcrypt==4.0.1
