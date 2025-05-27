@@ -8,3 +8,4 @@ redis==6.1.0
 httpx==0.28.1
 aiosqlite==0.21.0
 PyYAML==6.0.2
+aiomysql==0.2.0
