@@ -59,7 +59,7 @@ def load_config() -> Config:
     config: dict = dict()
 
     if not CONFIG_PATH.exists():
-        from core.logger import logger
+        from app.core.logger import logger
 
         logger.warning("未找到 config.yml, 将使用默认配置，可能导致意外的后果!")
     else:
