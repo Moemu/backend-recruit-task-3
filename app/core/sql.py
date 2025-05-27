@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import config
@@ -8,8 +8,11 @@ class Base(DeclarativeBase):
     pass
 
 
-_engine = create_async_engine(config.db_url, echo=True, pool_pre_ping=True)
+_engine = create_async_engine(config.db_url, echo=False, pool_pre_ping=True)
 async_session = async_sessionmaker(_engine, expire_on_commit=False)
+async_session_maker = async_sessionmaker(
+    bind=_engine, class_=AsyncSession, expire_on_commit=False
+)
 
 
 async def load_db():

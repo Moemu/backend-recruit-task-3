@@ -1,9 +1,9 @@
-from app.core.redis import redis_client
+from redis.asyncio import Redis
 
 BLACKLIST_PREFIX = "token_blacklist:"
 
 
-async def add_token_to_blacklist(jti: str, expires_in: int):
+async def add_token_to_blacklist(redis_client: Redis, jti: str, expires_in: int):
     """
     添加登出 token 到黑名单
 
@@ -14,7 +14,7 @@ async def add_token_to_blacklist(jti: str, expires_in: int):
     await redis_client.set(key, "true", ex=expires_in)
 
 
-async def is_token_blacklisted(jti: str) -> bool:
+async def is_token_blacklisted(redis_client: Redis, jti: str) -> bool:
     """
     检查 jwt secret 是否在黑名单中
 

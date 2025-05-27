@@ -1,8 +1,10 @@
 from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.redis import get_redis_client
 from app.deps.auth import check_and_get_current_role, oauth2_scheme
 from app.deps.sql import get_db
 from app.models.user import User, UserRole
@@ -51,6 +53,7 @@ async def edit_info(
 @router.post("/password", tags=["student"])
 async def change_password(
     current_user: Annotated[User, Depends(check_and_get_current_student)],
+    redis: Annotated[Redis, Depends(get_redis_client)],
     old_password: str,
     new_password: str,
     db: AsyncSession = Depends(get_db),
@@ -65,7 +68,7 @@ async def change_password(
         raise HTTPException(status_code=404, detail="User not found")
 
     await repo.change_password(user, get_password_hash(new_password))
-    await logout(current_user, token)
+    await logout(current_user, redis, token)
 
     return {"msg": "Password updated successfully"}
 

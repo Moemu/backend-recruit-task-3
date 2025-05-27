@@ -5,9 +5,11 @@ from typing import Annotated
 import jwt
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import config
+from app.core.redis import get_redis_client
 from app.deps.auth import get_current_user, get_db, oauth2_scheme
 from app.models.user import User
 from app.repositories.user import UserRepository
@@ -43,6 +45,7 @@ async def login(
 @router.post("/logout", tags=["auth"])
 async def logout(
     current_user: Annotated[User, Depends(get_current_user)],
+    redis: Annotated[Redis, Depends(get_redis_client)],
     token: str = Depends(oauth2_scheme),
 ):
     payload = jwt.decode(token, config.secret_key, algorithms=config.algorithm)
@@ -50,5 +53,5 @@ async def logout(
     exp = payload.get("exp")
     now = int(time.time())
     ttl = exp - now
-    await add_token_to_blacklist(jti, ttl)
+    await add_token_to_blacklist(redis, jti, ttl)
     return {"msg": "Logged out"}

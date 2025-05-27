@@ -5,9 +5,11 @@ import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import config
+from app.core.redis import get_redis_client
 from app.models.user import User, UserRole
 from app.repositories.user import UserRepository
 from app.schemas.auth import Payload
@@ -21,6 +23,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="./login")
 async def get_current_user(
     db: Annotated[AsyncSession, Depends(get_db)],
     token: Annotated[str, Depends(oauth2_scheme)],
+    redis: Annotated[Redis, Depends(get_redis_client)],
 ) -> User:
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
@@ -36,7 +39,7 @@ async def get_current_user(
         if (
             (payload.sub is None or payload.exp is None)
             or payload.exp < datetime.timestamp(datetime.now())
-            or await is_token_blacklisted(payload.jti)
+            or await is_token_blacklisted(redis, payload.jti)
         ):
             raise credentials_exception
     except InvalidTokenError:
@@ -55,8 +58,9 @@ def check_and_get_current_role(
     async def wrapper(
         db: Annotated[AsyncSession, Depends(get_db)],
         token: Annotated[str, Depends(oauth2_scheme)],
+        redis: Annotated[Redis, Depends(get_redis_client)],
     ) -> User:
-        user = await get_current_user(db, token)
+        user = await get_current_user(db, token, redis)
         if user.role != role:
             raise HTTPException(status_code=403, detail="Permission denied")
         return user
