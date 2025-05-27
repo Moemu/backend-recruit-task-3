@@ -5,7 +5,7 @@ from deps.sql import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from models.user import User, UserRole
 from repositories.user import UserRepository
-from schemas.admin import RegisterRequestWithUsername, RegisterResponse
+from schemas.admin import EditRequest, RegisterRequest, RegisterResponse
 from services.auth_service import generate_random_password, get_password_hash
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +15,7 @@ get_current_admin = check_and_get_current_role(role=UserRole.admin)
 
 @router.post("/register", tags=["admin"])
 async def register(
-    request: RegisterRequestWithUsername,
+    request: RegisterRequest,
     current_user: Annotated[User, Depends(get_current_admin)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -48,7 +48,7 @@ async def register(
 
 @router.post("/batch_register", tags=["admin"])
 async def batch_register(
-    requests: list[RegisterRequestWithUsername],
+    requests: list[RegisterRequest],
     current_user: Annotated[User, Depends(get_current_admin)],
     db: AsyncSession = Depends(get_db),
 ):
@@ -86,16 +86,19 @@ async def batch_register(
     }
 
 
-@router.post("/edit", tags=["student"])
+@router.post("/edit", tags=["admin"])
 async def edit_info(
-    request: RegisterRequestWithUsername,
+    request: EditRequest,
     user: Annotated[User, Depends(get_current_admin)],
     db: AsyncSession = Depends(get_db),
 ):
     repo = UserRepository(db)
 
+    if not (target_user := await repo.get_by_name(request.username)):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No such user.")
+
     await repo.edit_info(
-        user=user,
+        user=target_user,
         name=request.name,
         status=request.status,
         role=request.role,
@@ -106,3 +109,35 @@ async def edit_info(
     )
 
     return {"msg": "User updated successfully"}
+
+
+@router.delete("/delete", tags=["admin"])
+async def delete_user(
+    username: str,
+    user: Annotated[User, Depends(get_current_admin)],
+    db: AsyncSession = Depends(get_db),
+):
+    repo = UserRepository(db)
+
+    if not (target_user := await repo.get_by_name(username)):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No such user.")
+
+    await repo.delete_user(target_user)
+
+    return {"msg": "User deleted successfully"}
+
+
+@router.post("/info", tags=["admin"])
+async def get_user_info(
+    username: str,
+    user: Annotated[User, Depends(get_current_admin)],
+    db: AsyncSession = Depends(get_db),
+):
+    repo = UserRepository(db)
+
+    if not (target_user := await repo.get_by_name(username)):
+        raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No such user.")
+
+    target_user.password = ""
+
+    return target_user

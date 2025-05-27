@@ -142,3 +142,12 @@ class UserRepository:
             )
         )
         return courses.scalars().all()  # type: ignore
+
+    async def delete_user(self, user: User):
+        """
+        删除用户
+
+        :param user: 用户对象
+        """
+        await self.session.delete(user)
+        await self.session.commit()
