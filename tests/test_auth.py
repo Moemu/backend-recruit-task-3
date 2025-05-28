@@ -1,4 +1,3 @@
-import pytest
 from fastapi.testclient import TestClient
 from httpx import AsyncClient
 
@@ -21,7 +20,6 @@ async def test_login(async_client, test_user: User):
     access_token = response.json()["access_token"]
 
 
-@pytest.mark.skip
 async def test_logout(async_client: AsyncClient):
     async_client.headers.update({"Authorization": f"Bearer {access_token}"})
     response = await async_client.post("/api/auth/logout")

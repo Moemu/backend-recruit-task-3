@@ -1,4 +1,4 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from typing import Optional
 from uuid import uuid4
 
@@ -24,7 +24,7 @@ class Payload:
     """用户名"""
     exp: Optional[int] = None
     """过期时间"""
-    jti: str = str(uuid4())
+    jti: str = field(default_factory=lambda: uuid4().hex)
     """JWT ID"""
 
     def to_json(self):
