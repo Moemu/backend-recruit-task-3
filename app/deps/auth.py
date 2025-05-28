@@ -9,6 +9,7 @@ from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import config
+from app.core.logger import logger
 from app.core.redis import get_redis_client
 from app.models.user import User, UserRole
 from app.repositories.user import UserRepository
@@ -25,6 +26,8 @@ async def get_current_user(
     token: Annotated[str, Depends(oauth2_scheme)],
     redis: Annotated[Redis, Depends(get_redis_client)],
 ) -> User:
+    logger.debug("尝试鉴权已登录用户...")
+
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
@@ -41,14 +44,25 @@ async def get_current_user(
             or payload.exp < datetime.timestamp(datetime.now())
             or await is_token_blacklisted(redis, payload.jti)
         ):
+            logger.warning("用户鉴权失败，用户可能没有设置密钥体或密钥过期")
             raise credentials_exception
+
+    except jwt.ExpiredSignatureError:
+        logger.warning("用户鉴权失败，用户使用的 jwt 已过期")
+        raise credentials_exception
+
     except InvalidTokenError:
+        logger.warning("用户鉴权失败，用户使用了无效的 jwt")
         raise credentials_exception
 
     repo = UserRepository(db)
     user = await repo.get_by_name(payload.sub)
+
     if not user or not user.status:
+        logger.warning("用户鉴权失败，尝试登录的用户不存在或已被禁用")
         raise credentials_exception
+
+    logger.debug(f"鉴权成功: 登录用户 {user.name}")
     return user
 
 
@@ -62,6 +76,7 @@ def check_and_get_current_role(
     ) -> User:
         user = await get_current_user(db, token, redis)
         if user.role != role:
+            logger.warning("用户鉴权失败，所登录的用户没有响应的权限")
             raise HTTPException(status_code=403, detail="Permission denied")
         return user
 

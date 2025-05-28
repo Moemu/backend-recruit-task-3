@@ -8,15 +8,6 @@ from pydantic import BaseModel
 CONFIG_PATH = Path("./config.yml")
 
 
-class TestConfig(BaseModel):
-    test_admin_username: str = "test"
-    """测试admin账号"""
-    test_admin_password: str = "123456"
-    """测试admin账号密码"""
-    auto_delete: bool = True
-    """测试结束后自毁测试账号"""
-
-
 class Config(BaseModel):
     log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "DEBUG"
     """日志等级"""
@@ -48,9 +39,6 @@ class Config(BaseModel):
     """redis 本地回环地址(IP地址)"""
     redis_port: int = 6379
     """redis 服务端口"""
-
-    # 测试配置
-    test: TestConfig = TestConfig()
 
 
 def load_config() -> Config:

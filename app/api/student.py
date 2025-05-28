@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logger import logger
 from app.core.redis import get_redis_client
 from app.deps.auth import check_and_get_current_role, oauth2_scheme
 from app.deps.sql import get_db
@@ -22,7 +23,9 @@ async def get_info(
     current_user: Annotated[User, Depends(check_and_get_current_student)],
     db: AsyncSession = Depends(get_db),
 ):
+    logger.info(f"收到学生获取消息请求: {current_user.name}")
     current_user.password = ""  # Remove password from the response
+    logger.info("获取消息请求处理成功")
     return current_user
 
 
@@ -36,9 +39,9 @@ async def edit_info(
     class_number: Optional[int] = None,
     db: AsyncSession = Depends(get_db),
 ):
+    logger.info(f"收到学生编辑消息请求: {user.name}")
+
     repo = UserRepository(db)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
     await repo.edit_info(
         user=user,
         name=name,
@@ -47,29 +50,31 @@ async def edit_info(
         major=major,
         class_number=class_number,
     )
+
+    logger.info("学生编辑消息请求处理成功")
     return {"msg": "User updated successfully"}
 
 
 @router.post("/password", tags=["student"])
 async def change_password(
-    current_user: Annotated[User, Depends(check_and_get_current_student)],
+    user: Annotated[User, Depends(check_and_get_current_student)],
     redis: Annotated[Redis, Depends(get_redis_client)],
     old_password: str,
     new_password: str,
     db: AsyncSession = Depends(get_db),
     token: str = Depends(oauth2_scheme),
 ):
-    if not verify_password(old_password, current_user.password):
+    logger.info(f"收到学生编辑密码请求: {user.name}")
+
+    if not verify_password(old_password, user.password):
+        logger.warning("学生输入的原始密码有误，抛出 400")
         raise HTTPException(status_code=400, detail="Incorrect password")
 
     repo = UserRepository(db)
-    user = await repo.get_by_name(current_user.username)
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
     await repo.change_password(user, get_password_hash(new_password))
-    await logout(current_user, redis, token)
+    await logout(user, redis, token)
 
+    logger.info("学生编辑密码请求成功，用户已登出")
     return {"msg": "Password updated successfully"}
 
 
@@ -79,8 +84,13 @@ async def get_schedule(
     current_user: Annotated[User, Depends(check_and_get_current_student)],
     db: AsyncSession = Depends(get_db),
 ):
+    logger.info(f"收到学生获取课程表请求: {current_user.name}")
+
     repo = UserRepository(db)
     schedule = await repo.get_schedule(current_user, term)
     if not schedule:
+        logger.warning("该学生没课，查什么查，返回404")
         raise HTTPException(status_code=404, detail="Schedule not found")
+
+    logger.info("学生获取课程表请求成功")
     return schedule

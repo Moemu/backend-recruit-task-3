@@ -8,7 +8,10 @@ ADMIN_NAME = "admin"
 ADMIN_PWD = "123456"
 
 
-async def create_a_debug_admin(username=ADMIN_NAME, password=ADMIN_PWD):
+async def create_a_debug_admin():
+    """
+    创建一个测试管理员账号
+    """
     async for db in get_db():
         repo = UserRepository(db)
 

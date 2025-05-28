@@ -2,6 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 from sqlalchemy.orm import DeclarativeBase
 
 from app.core.config import config
+from app.core.logger import logger
 
 
 class Base(DeclarativeBase):
@@ -19,6 +20,7 @@ async def load_db():
     """
     初始化表
     """
+    logger.info("初始化数据库表...")
     async with _engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 

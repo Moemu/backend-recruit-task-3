@@ -86,7 +86,7 @@ class CourseRepository:
         credit: Optional[float] = None,
         is_public: Optional[bool] = None,
         status: Optional[bool] = None,
-    ):
+    ) -> Optional[Course]:
         """
         修改一个课程
 
@@ -102,10 +102,8 @@ class CourseRepository:
         :param status: 课程状态
         """
         if not (course := await self.get_by_course_no(course_no)):
-            raise HTTPException(
-                status_code=fastapi.status.HTTP_404_NOT_FOUND,
-                detail="Incorrect course_no",
-            )
+            return None
+
         course.course_name = course_name or course.course_name
         course.teacher_id = teacher_id or course.teacher_id
         course.major = major or course.major
@@ -115,6 +113,7 @@ class CourseRepository:
         course.credit = credit or course.credit
         course.is_public = is_public or course.is_public
         course.status = status or course.status
+
         await self.session.commit()
         return course
 
@@ -123,27 +122,30 @@ class CourseRepository:
         删除一个课程
 
         :param course_no: 课程编号
+
+        :return: 是否成功
         """
         if not (course := await self.get_by_course_no(course_no)):
-            raise HTTPException(
-                status_code=fastapi.status.HTTP_404_NOT_FOUND,
-                detail="Incorrect course_no",
-            )
+            return False
+
         await self.session.delete(course)
         await self.session.commit()
+
         return True
 
-    async def set_status(self, course_no: str, status: int):
+    async def set_status(self, course_no: str, status: int) -> bool:
         """
         设置课程状态
 
         :param course_no: 课程编号
         :param status: 课程状态
+
+        :return: 是否成功
         """
         if not (course := await self.get_by_course_no(course_no)):
-            raise HTTPException(
-                status_code=fastapi.status.HTTP_404_NOT_FOUND,
-                detail="Incorrect course_no",
-            )
+            return False
+
         course.status = status
         await self.session.commit()
+
+        return True
