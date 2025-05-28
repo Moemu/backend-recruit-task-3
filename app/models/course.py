@@ -1,7 +1,7 @@
 from datetime import datetime
 
 import sqlalchemy
-from sqlalchemy import JSON, BigInteger, Boolean, DateTime, Integer, Numeric, String
+from sqlalchemy import JSON, Boolean, DateTime, ForeignKey, Integer, Numeric, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.sql import Base
@@ -20,10 +20,12 @@ class Course(Base):
     course_name: Mapped[str] = mapped_column(
         String(50), nullable=False, comment="课程名称"
     )
-    teacher_id: Mapped[int] = mapped_column(
-        BigInteger, nullable=False, comment="教师ID"
+    teacher: Mapped[int] = mapped_column(
+        Integer, ForeignKey("user.id"), comment="教师ID"
     )
-    major: Mapped[int] = mapped_column(BigInteger, nullable=False, comment="专业ID")
+    major_no: Mapped[int] = mapped_column(
+        Integer, ForeignKey("major.major_no"), comment="专业ID"
+    )
     session: Mapped[int] = mapped_column(Integer, nullable=False, comment="年级")
     course_type: Mapped[int] = mapped_column(
         Integer, nullable=False, comment="课程类型(0-必修, 1-选修)"

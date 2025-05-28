@@ -2,14 +2,7 @@ import enum
 from datetime import datetime
 
 import sqlalchemy
-from sqlalchemy import (
-    BigInteger,
-    Boolean,
-    DateTime,
-    Enum,
-    Integer,
-    String,
-)
+from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.sql import Base
@@ -40,8 +33,12 @@ class User(Base):
 
     name: Mapped[str] = mapped_column(String(12), nullable=False, comment="姓名")
     session: Mapped[int] = mapped_column(Integer, nullable=False, comment="届号")
-    faculty: Mapped[int] = mapped_column(Integer, nullable=False, comment="院系ID")
-    major: Mapped[int] = mapped_column(BigInteger, nullable=True, comment="专业ID")
+    dept_no: Mapped[int] = mapped_column(
+        Integer, ForeignKey("department.dept_no"), nullable=False, comment="院系ID"
+    )
+    major_no: Mapped[int] = mapped_column(
+        Integer, ForeignKey("major.major_no"), nullable=True, comment="专业ID"
+    )
     class_number: Mapped[int] = mapped_column(Integer, nullable=True, comment="班级ID")
 
     create_time: Mapped[datetime] = mapped_column(

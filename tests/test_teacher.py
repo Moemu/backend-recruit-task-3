@@ -12,7 +12,7 @@ async def test_add_course(teacher_client: AsyncClient):
         json={
             "course_name": "和沐沐一起学 Python 吧",
             "session": 24,
-            "major": 15,
+            "major_no": 15,
             "course_type": 0,
             "course_date": {
                 "term": "2024-2025-2",
@@ -70,7 +70,7 @@ async def test_edit(teacher_client: AsyncClient, course_repo: CourseRepository):
     assert course.credit == 2.0
 
 
-async def test_delete(teacher_client: AsyncClient, course_repo: CourseRepository):
+async def test_delete(teacher_client: AsyncClient):
     response = await teacher_client.delete(
         "/api/course/delete", params={"course_no": test_course}
     )

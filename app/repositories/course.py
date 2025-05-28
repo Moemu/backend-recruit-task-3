@@ -27,7 +27,7 @@ class CourseRepository:
         self,
         course_name: str,
         teacher_id: int,
-        major: int,
+        major_no: int,
         session: int,
         course_type: CourseType,
         credit: float,
@@ -40,7 +40,7 @@ class CourseRepository:
 
         :param course_name: 课程名称
         :param teacher_id: 任教教师ID
-        :param major: 专业ID
+        :param major_no: 专业ID
         :param session: 年级
         :param course_type: 课程类型(0-必修, 1-选修)
         :param course_date: 课程时间
@@ -55,7 +55,7 @@ class CourseRepository:
             course_no=course_no,
             course_name=course_name,
             teacher_id=teacher_id,
-            major=major,
+            major_no=major_no,
             session=session,
             course_type=course_type.value,
             credit=credit,
@@ -78,8 +78,8 @@ class CourseRepository:
         self,
         course_no: str,
         course_name: Optional[str] = None,
-        teacher_id: Optional[int] = None,
-        major: Optional[int] = None,
+        teacher: Optional[int] = None,
+        major_no: Optional[int] = None,
         session: Optional[int] = None,
         course_type: Optional[CourseType] = None,
         course_date: Optional[CourseDate] = None,
@@ -92,8 +92,8 @@ class CourseRepository:
 
         :param couse_no: 课程编号
         :param course_name: 课程名称
-        :param teacher_id: 任教教师ID
-        :param major: 专业ID
+        :param teacher: 任教教师ID
+        :param major_no: 专业ID
         :param grade: 年级
         :param course_type: 课程类型(0-必修, 1-选修)
         :param course_date: 课程时间
@@ -105,8 +105,8 @@ class CourseRepository:
             return None
 
         course.course_name = course_name or course.course_name
-        course.teacher_id = teacher_id or course.teacher_id
-        course.major = major or course.major
+        course.teacher = teacher or course.teacher
+        course.major_no = major_no or course.major_no
         course.session = session or course.session
         course.course_type = course_type.value if course_type else course.course_type
         course.course_date = course_date or course.course_date

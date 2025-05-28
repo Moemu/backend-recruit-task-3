@@ -31,8 +31,8 @@ async def register(
         name=request.name,
         password=hash_password,
         session=request.session,
-        faculty=request.faculty,
-        major=request.major,
+        dept_no=request.dept_no,
+        major_no=request.major_no,
         class_number=request.class_number,
         role=request.role,
     ):
@@ -72,8 +72,8 @@ async def batch_register(
                 name=request.name,
                 password=hash_password,
                 session=request.session,
-                faculty=request.faculty,
-                major=request.major,
+                dept_no=request.dept_no,
+                major_no=request.major_no,
                 class_number=request.class_number,
                 role=request.role,
             )
@@ -117,9 +117,9 @@ async def edit_info(
         name=request.name,
         status=request.status,
         role=request.role,
-        major=request.major,
+        major_no=request.major_no,
         session=request.session,
-        faculty=request.faculty,
+        dept_no=request.dept_no,
         class_number=request.class_number,
     )
 

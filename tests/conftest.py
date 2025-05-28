@@ -57,8 +57,8 @@ async def test_user(user_repo: UserRepository) -> User:
         password=hashed_password,
         role=UserRole.student,
         session=0,
-        faculty=0,
-        major=0,
+        dept_no=0,
+        major_no=0,
         class_number=0,
     )
     return user
@@ -72,7 +72,7 @@ async def test_admin(user_repo: UserRepository) -> User:
         password=hashed_password,
         role=UserRole.admin,
         session=0,
-        faculty=0,
+        dept_no=0,
     )
     return admin
 
@@ -85,8 +85,8 @@ async def test_student(user_repo: UserRepository) -> User:
         password=hashed_password,
         role=UserRole.student,
         session=25,
-        faculty=5,
-        major=1,
+        dept_no=5,
+        major_no=1,
         class_number=2,
     )
     return user
@@ -100,7 +100,7 @@ async def test_teacher(user_repo: UserRepository) -> User:
         password=hashed_password,
         role=UserRole.teacher,
         session=24,
-        faculty=3,
+        dept_no=3,
     )
     return user
 

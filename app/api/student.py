@@ -34,8 +34,8 @@ async def edit_info(
     user: Annotated[User, Depends(check_and_get_current_student)],
     name: Optional[str] = None,
     session: Optional[int] = None,
-    faculty: Optional[int] = None,
-    major: Optional[int] = None,
+    dept_no: Optional[int] = None,
+    major_no: Optional[int] = None,
     class_number: Optional[int] = None,
     db: AsyncSession = Depends(get_db),
 ):
@@ -46,8 +46,8 @@ async def edit_info(
         user=user,
         name=name,
         session=session,
-        faculty=faculty,
-        major=major,
+        dept_no=dept_no,
+        major_no=major_no,
         class_number=class_number,
     )
 

@@ -28,8 +28,8 @@ async def test_edit(
         params={
             "name": "test_user_edited",
             "session": 24,
-            "faculty": 10,
-            "major": 2,
+            "dept_no": 10,
+            "major_no": 2,
             "class_number": 1,
         },
     )
@@ -39,8 +39,8 @@ async def test_edit(
     assert edited_user is not None
     assert edited_user.name == "test_user_edited"
     assert edited_user.session == 24
-    assert edited_user.faculty == 10
-    assert edited_user.major == 2
+    assert edited_user.dept_no == 10
+    assert edited_user.major_no == 2
     assert edited_user.class_number == 1
 
 
@@ -55,7 +55,7 @@ async def test_schedule(
     await course_repo.create_course(
         course_name="test_course",
         teacher_id=114514,
-        major=test_student.major,
+        major_no=test_student.major_no,
         session=test_student.session,
         course_type=CourseType.CORE,
         credit=1.0,

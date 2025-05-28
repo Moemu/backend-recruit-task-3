@@ -39,8 +39,8 @@ class UserRepository:
         password: str,
         role: UserRole,
         session: int,
-        faculty: int,
-        major: Optional[int] = None,
+        dept_no: int,
+        major_no: Optional[int] = None,
         class_number: Optional[int] = None,
         status: bool = True,
     ) -> User:
@@ -51,19 +51,19 @@ class UserRepository:
         :param password: 用户哈希密钥
         :param role: 用户角色(student/teacher/admin)
         :param session: 届号
-        :param faculty: 院系ID
-        :param major: 专业ID
+        :param dept_no: 院系ID
+        :param major_no: 专业ID
         :param class_number: 班级ID
         :param status: 用户状态(正常/禁用)
 
         :return: 用户对象
         """
         if role == UserRole.student:
-            prefix = f"{session:02d}{faculty:03d}{major:02d}{class_number:02d}"
+            prefix = f"{session:02d}{dept_no:03d}{major_no:02d}{class_number:02d}"
             addition_order = await self.get_addition_order(prefix)
             account_number = f"{prefix}{addition_order:02d}"
         else:
-            prefix = f"{session:02d}{faculty:03d}"
+            prefix = f"{session:02d}{dept_no:03d}"
             addition_order = await self.get_addition_order(prefix)
             account_number = f"{prefix}{addition_order:04d}"
 
@@ -73,8 +73,8 @@ class UserRepository:
             name=name,
             role=role,
             session=session,
-            faculty=faculty,
-            major=major,
+            dept_no=dept_no,
+            major_no=major_no,
             class_number=class_number,
             status=status,
         )
@@ -88,9 +88,9 @@ class UserRepository:
         name: Optional[str] = None,
         status: Optional[bool] = None,
         role: Optional[UserRole] = None,
-        major: Optional[int] = None,
+        major_no: Optional[int] = None,
         session: Optional[int] = None,
-        faculty: Optional[int] = None,
+        dept_no: Optional[int] = None,
         class_number: Optional[int] = None,
     ):
         """
@@ -101,16 +101,16 @@ class UserRepository:
         :param role: 用户角色(student/teacher/admin)
         :param status: 用户状态(正常/禁用)
         :param session: 届号
-        :param faculty: 院系ID
-        :param major: 专业ID
+        :param dept_no: 院系ID
+        :param major_no: 专业ID
         :param class_number: 班级ID
         """
         user.name = name or user.name
         user.role = role or user.role
         user.status = status or user.status
         user.session = session or user.session
-        user.faculty = faculty or user.faculty
-        user.major = major or user.major
+        user.dept_no = dept_no or user.dept_no
+        user.major_no = major_no or user.major_no
         user.class_number = class_number or user.class_number
         await self.session.commit()
 
@@ -141,11 +141,11 @@ class UserRepository:
         :param user: 用户对象
         :param term: 学期
         """
-        major = user.major
+        major_no = user.major_no
         session = user.session
         courses = await self.session.execute(
             select(Course).where(
-                Course.major == major,
+                Course.major_no == major_no,
                 Course.session == session,
                 self._term_filter(Course.course_date, term),
                 Course.status == 4,

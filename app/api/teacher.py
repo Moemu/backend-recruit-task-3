@@ -26,7 +26,7 @@ async def add_course(
     result = await repo.create_course(
         course_name=course.course_name,
         teacher_id=current_user.id,
-        major=course.major,
+        major_no=course.major_no,
         session=course.session,
         course_type=course.course_type,
         course_date=course.course_date,
@@ -68,8 +68,8 @@ async def edit_course(
     result = await repo.edit_course(
         course_no=course.course_no,
         course_name=course.course_name,
-        teacher_id=current_user.id,
-        major=course.major,
+        teacher=current_user.id,
+        major_no=course.major_no,
         session=course.session,
         course_type=course.course_type,
         course_date=course.course_date,

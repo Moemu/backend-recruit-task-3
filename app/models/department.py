@@ -17,12 +17,14 @@ class Department(Base):
     id: Mapped[int] = mapped_column(
         Integer, primary_key=True, index=True, autoincrement=True, comment="主键ID"
     )
+
     dept_no: Mapped[str] = mapped_column(
         String(10), unique=True, nullable=False, comment="院系编号"
     )
     dept_name: Mapped[str] = mapped_column(
         String(50), nullable=False, comment="院系名称"
     )
+
     create_time: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
