@@ -42,7 +42,7 @@ class UserRepository:
         session: int,
         dept_no: Optional[str] = None,
         major_no: Optional[str] = None,
-        class_number: Optional[int] = None,
+        class_number: Optional[int] = 0,
         status: bool = True,
     ) -> Optional[User]:
         """
