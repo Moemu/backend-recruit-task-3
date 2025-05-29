@@ -2,12 +2,12 @@ from database import async_session
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.course import CourseType
 from app.models.user import User, UserRole
 from app.repositories.course import CourseRepository
 from app.repositories.department import DepartmentRepository
 from app.repositories.major import MajorRepository
 from app.repositories.user import UserRepository
-from app.schemas.course import CourseType
 
 TEST_USERS: list[str] = []
 

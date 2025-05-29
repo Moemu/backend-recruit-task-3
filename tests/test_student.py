@@ -1,10 +1,10 @@
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.course import CourseType
 from app.models.user import User
 from app.repositories.course import CourseRepository
 from app.repositories.user import UserRepository
-from app.schemas.course import CourseType
 
 TEST_USERS: list[str] = []
 

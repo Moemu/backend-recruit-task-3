@@ -3,7 +3,7 @@ from datetime import datetime
 
 import sqlalchemy
 from sqlalchemy import Boolean, DateTime, Enum, ForeignKey, Integer, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.core.sql import Base
 
@@ -40,6 +40,10 @@ class User(Base):
         String(10), ForeignKey("major.major_no"), nullable=True, comment="专业ID"
     )
     class_number: Mapped[int] = mapped_column(Integer, nullable=True, comment="班级ID")
+
+    course_selections = relationship(
+        "Selection", back_populates="student", cascade="all, delete-orphan"
+    )
 
     create_time: Mapped[datetime] = mapped_column(
         DateTime,

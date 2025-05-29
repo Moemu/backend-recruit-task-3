@@ -7,8 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.logger import logger
-from app.models.course import Course
-from app.schemas.course import CourseDate, CourseType
+from app.models.course import Course, CourseDate, CourseType
 
 
 class CourseRepository:
@@ -35,6 +34,7 @@ class CourseRepository:
         course_date: CourseDate,
         is_public: bool = True,
         status: int = 0,
+        max_students: Optional[int] = 50,
     ):
         """
         创建一个课程
@@ -48,6 +48,7 @@ class CourseRepository:
         :param credit: 学分
         :param is_public: 是否公开
         :param status: 课程状态
+        :param max_students: 选修课最大选课人数
 
         :return: 课程对象。失败则返回 None
         """
@@ -65,6 +66,7 @@ class CourseRepository:
             course_date=course_date,
             is_public=is_public,
             status=status,
+            max_students=max_students,
         )
         self.session.add(course)
         try:
@@ -89,6 +91,7 @@ class CourseRepository:
         credit: Optional[float] = None,
         is_public: Optional[bool] = None,
         status: Optional[bool] = None,
+        max_students: Optional[int] = None,
     ) -> Optional[Course]:
         """
         修改一个课程
@@ -103,6 +106,7 @@ class CourseRepository:
         :param credit: 学分
         :param is_public: 是否公开
         :param status: 课程状态
+        :param max_students: 选修课最大选课人数
 
         :return: 修改后的课程对象。失败则返回 None
         """
@@ -113,11 +117,12 @@ class CourseRepository:
         course.teacher = teacher or course.teacher
         course.major_no = major_no or course.major_no
         course.session = session or course.session
-        course.course_type = course_type.value if course_type else course.course_type
+        course.course_type = course_type or course.course_type
         course.course_date = course_date or course.course_date
         course.credit = credit or course.credit
         course.is_public = is_public or course.is_public
         course.status = status or course.status
+        course.max_students = max_students or course.max_students
 
         try:
             await self.session.commit()

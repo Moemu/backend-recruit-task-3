@@ -32,6 +32,7 @@ async def add_course(
         course_date=course.course_date,
         credit=course.credit,
         is_public=course.is_public,
+        max_students=course.max_students,
     )
 
     logger.info(f"教师添加课程({course.course_name})请求成功")
@@ -75,6 +76,7 @@ async def edit_course(
         course_date=course.course_date,
         credit=course.credit,
         is_public=course.is_public,
+        max_students=course.max_students,
     )
 
     if not result:

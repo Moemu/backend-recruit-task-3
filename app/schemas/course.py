@@ -1,22 +1,8 @@
-import enum
 from typing import Optional
 
 from pydantic import BaseModel
-from typing_extensions import TypedDict
 
-
-class CourseType(int, enum.Enum):
-    CORE = 0
-    ELECTIVE = 1
-
-
-class CourseDate(TypedDict):
-    term: str
-    start_week: int
-    end_week: int
-    is_double_week: bool
-    week_day: int
-    section: list[int]
+from app.models.course import CourseDate, CourseType
 
 
 class CourseCreateRequest(BaseModel):
@@ -27,6 +13,7 @@ class CourseCreateRequest(BaseModel):
     course_date: CourseDate
     credit: float
     is_public: bool
+    max_students: Optional[int] = 50
 
 
 class CourseUpdateRequest(BaseModel):
@@ -38,3 +25,4 @@ class CourseUpdateRequest(BaseModel):
     course_date: Optional[CourseDate] = None
     credit: Optional[float] = None
     is_public: Optional[bool] = None
+    max_students: Optional[int] = None

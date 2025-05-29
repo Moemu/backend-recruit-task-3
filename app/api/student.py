@@ -9,6 +9,8 @@ from app.core.redis import get_redis_client
 from app.deps.auth import check_and_get_current_role, oauth2_scheme
 from app.deps.sql import get_db
 from app.models.user import User, UserRole
+from app.repositories.course import CourseRepository
+from app.repositories.selection import SelectionRepository
 from app.repositories.user import UserRepository
 from app.services.auth_service import get_password_hash, verify_password
 
@@ -94,3 +96,82 @@ async def get_schedule(
 
     logger.info("学生获取课程表请求成功")
     return schedule
+
+
+@router.post("/select", tags=["student"])
+async def select_course(
+    course_no: str,
+    current_user: Annotated[User, Depends(check_and_get_current_student)],
+    db: AsyncSession = Depends(get_db),
+):
+    logger.info(f"收到学生选课请求: {current_user.name}, 课程编号: {course_no}")
+
+    repo = SelectionRepository(db)
+    selection = await repo.create_selection(current_user.id, course_no)
+
+    logger.info("学生选课请求处理成功")
+    return {"msg": "Course selected successfully", "selection_id": selection.id}
+
+
+@router.post("/deselect", tags=["student"])
+async def deselect_course(
+    course_no: Optional[str] = None,
+    selection_id: Optional[int] = None,
+    current_user: User = Depends(check_and_get_current_student),
+    db: AsyncSession = Depends(get_db),
+):
+    logger.info(
+        f"收到学生退选请求: {current_user.name}, 课程编号: {course_no}, 选课ID: {selection_id}"
+    )
+
+    repo = SelectionRepository(db)
+
+    if not course_no and not selection_id:
+        logger.warning("学生退选请求缺少课程编号或选课ID，抛出 400")
+        raise HTTPException(
+            status_code=400, detail="Course No or selection ID must be provided"
+        )
+
+    if course_no:
+        logger.info(f"收到学生退课请求: {current_user.name}, 课程编号: {course_no}")
+        course = await CourseRepository(db).get_by_course_no(course_no)
+        if not course:
+            logger.warning(f"课程编号: {course_no} 不存在，抛出 404")
+            raise HTTPException(status_code=404, detail="Course not found")
+
+        selection = await repo.get_selection_by_student_and_course(
+            current_user.id, course.id
+        )
+        if not selection:
+            logger.warning(f"学生没有选中课程编号: {course_no}，抛出 404")
+            raise HTTPException(status_code=404, detail="Selection not found")
+        selection_id = selection.id
+
+    if not selection_id:
+        logger.warning("学生退选请求缺少选课ID，抛出 400")
+        raise HTTPException(status_code=400, detail="Selection ID must be provided")
+
+    repo = SelectionRepository(db)
+    await repo.update_selection_status(selection_id, False)
+
+    logger.info("学生退选请求处理成功")
+    return {"msg": "Course deselected successfully"}
+
+
+@router.post("/electives", tags=["student"])
+async def get_elective_courses(
+    term: str,
+    current_user: Annotated[User, Depends(check_and_get_current_student)],
+    db: AsyncSession = Depends(get_db),
+):
+    logger.info(f"收到学生获取可选课程列表请求: {current_user.name}")
+
+    repo = SelectionRepository(db)
+    courses = await repo.get_available_courses(current_user.id, term)
+
+    if not courses:
+        logger.warning("该学生没有可选课程，返回空列表")
+        return []
+
+    logger.info("学生获取可选课程列表请求处理成功")
+    return courses

@@ -4,9 +4,9 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.models.course import Course, CourseType
+from app.models.selection import Selection
 from app.models.user import User, UserRole
-
-from .course import Course
 
 
 class UserRepository:
@@ -139,13 +139,15 @@ class UserRepository:
         user.password = new_password
         await self.session.commit()
 
-    def _term_filter(self, course_date_column, term):
+    def _term_filter(self, course_date_column, term: str):
         """
         term json 对象过滤器
         """
         bind = self.session.get_bind()
-        if bind.dialect.name == "sqlite":
-            return course_date_column["term"] == f'"{term}"'
+        if bind.dialect.name == "mysql":
+            return course_date_column.op("->>")("$.term") == term
+        elif bind.dialect.name == "sqlite":
+            return func.json_extract(course_date_column, "$.term") == term
         else:  # pragma: no cover
             return course_date_column["term"] == term
 
@@ -158,16 +160,47 @@ class UserRepository:
         """
         major_no = user.major_no
         session = user.session
-        courses = await self.session.execute(
-            select(Course).where(
-                Course.major_no == major_no,
-                Course.session == session,
-                self._term_filter(Course.course_date, term),
-                Course.status == 4,
-                Course.is_public == True,  # noqa: E712
+
+        # 获取必修课
+        core_courses_stmt = select(Course).where(
+            Course.major_no == major_no,
+            Course.session == session,
+            self._term_filter(Course.course_date, term),
+            Course.status == 4,
+            Course.is_public.is_(True),
+            Course.course_type == CourseType.CORE,
+        )
+
+        # 获取选修课
+        elective_selections_result = await self.session.execute(
+            select(Selection.course_id).where(
+                Selection.student_id == user.id,
+                Selection.status.is_(True),
             )
         )
-        return courses.scalars().all()  # type: ignore
+        elective_course_ids = elective_selections_result.scalars().all()
+
+        elective_courses_stmt = None
+        if elective_course_ids:
+            elective_courses_stmt = select(Course).where(
+                Course.id.in_(elective_course_ids),
+                self._term_filter(Course.course_date, term),
+            )
+
+        # 组合查询
+        if elective_courses_stmt is not None:
+            combined_stmt = core_courses_stmt.union(elective_courses_stmt)
+        else:
+            combined_stmt = core_courses_stmt
+
+        # 将 union 查询包装在 CTE 中，然后从 CTE 中选择 Course 实体
+        course_schedule_cte = combined_stmt.cte("course_schedule_cte")
+        final_query = select(Course).select_from(course_schedule_cte)
+
+        result = await self.session.execute(final_query)
+        courses = result.scalars().all()
+
+        return courses  # type:ignore
 
     async def delete_user(self, user: User):
         """
