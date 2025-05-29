@@ -6,6 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.logger import logger
 from app.models.course import Course
 from app.schemas.course import CourseDate, CourseType
 
@@ -33,7 +34,7 @@ class CourseRepository:
         credit: float,
         course_date: CourseDate,
         is_public: bool = True,
-        status: int = 1,
+        status: int = 0,
     ):
         """
         创建一个课程
@@ -141,19 +142,73 @@ class CourseRepository:
 
         return True
 
-    async def set_status(self, course_no: str, status: int) -> bool:
+    async def submit_course_review(self, course_no: str):
         """
-        设置课程状态
+        提交课程审核
 
         :param course_no: 课程编号
-        :param status: 课程状态
 
         :return: 是否成功
+
+        :raises HTTPException: 如果课程不存在或状态不符合要求
         """
         if not (course := await self.get_by_course_no(course_no)):
-            return False
+            logger.warning(f"课程: {course_no} 不存在，返回 404")
+            raise HTTPException(
+                status_code=fastapi.status.HTTP_404_NOT_FOUND,
+                detail="Course not found",
+            )
 
-        course.status = status
+        if course.status != 0:
+            logger.warning(f"课程: {course_no} 状态不符合要求，返回 400")
+            raise HTTPException(
+                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+                detail="Course is not in a valid state for submission",
+            )
+
+        course.status = 1
         await self.session.commit()
 
         return True
+
+    async def set_course_status(
+        self, course_no: str, status: int, comment: Optional[str] = None
+    ) -> Course:
+        """
+        设置课程状态（审核课程）
+
+        :param course_no: 课程编号
+        :param status: 审核状态(1-待审核, 2-通过, 3-不通过, 4-公开, 0-隐藏)
+        :param comment: 状态说明（可选）
+
+        :raises HTTPException: 如果状态无效或课程不存在
+        """
+        if not (course := await self.get_by_course_no(course_no)):
+            logger.warning(f"课程: {course_no} 不存在，返回 404")
+            raise HTTPException(
+                status_code=fastapi.status.HTTP_404_NOT_FOUND,
+                detail="Course not found",
+            )
+
+        if status not in [1, 2, 3, 4, 0]:
+            logger.warning(f"课程: {course_no} 状态不符合要求，返回 400")
+            raise HTTPException(
+                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+                detail="Invalid course status",
+            )
+
+        course.status = status
+        if comment:
+            course.status_comment = comment
+
+        await self.session.commit()
+        return course
+
+    async def get_pending_courses(self) -> list[Course]:
+        """
+        获取所有待审核的课程
+
+        :return: 待审核课程列表
+        """
+        result = await self.session.execute(select(Course).where(Course.status == 1))
+        return result.scalars().all()  # type: ignore

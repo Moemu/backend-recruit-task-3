@@ -20,6 +20,7 @@ class Course(Base):
     course_name: Mapped[str] = mapped_column(
         String(50), nullable=False, comment="课程名称"
     )
+
     teacher: Mapped[int] = mapped_column(
         Integer, ForeignKey("user.id"), comment="教师ID"
     )
@@ -34,9 +35,13 @@ class Course(Base):
     is_public: Mapped[bool] = mapped_column(Boolean, default=True, comment="是否公开")
     status: Mapped[int] = mapped_column(
         Integer,
-        default=True,
+        default=0,
         comment="课程状态(1-已提交/2-审核通过/3-审核不通过/4-公开/0-隐藏)",
     )
+    status_comment: Mapped[str] = mapped_column(
+        String(100), nullable=True, comment="状态说明"
+    )
+
     course_date: Mapped[CourseDate] = mapped_column(
         JSON, nullable=False, comment="课程时间"
     )

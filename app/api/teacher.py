@@ -107,24 +107,16 @@ async def delete_course(
     return {"msg": "Course deleted successfully"}
 
 
-@router.post("/status", tags=["course"])
-async def set_course_status(
+@router.post("/submit", tags=["course"])
+async def submit_course_review(
     course_no: str,
-    status: int,
     current_user: Annotated[User, Depends(check_and_get_current_teacher)],
     db: AsyncSession = Depends(get_db),
 ):
     logger.info(f"收到教师申请修改课程状态请求: {current_user.name}")
 
     repo = CourseRepository(db)
-    if not await repo.set_status(course_no, status):
-        logger.warning(f"课程: {course_no} 不存在，返回 404")
-        raise HTTPException(
-            status_code=404,
-            detail="Incorrect course_no",
-        )
+    await repo.submit_course_review(course_no)
 
-    logger.warning(
-        "教师申请修改课程状态请求成功，由于申请接口未实现，已自动修改目标状态"
-    )
-    return {"msg": "Course status updated successfully"}
+    logger.info("教师申请修改课程状态请求成功")
+    return {"msg": "Course review submitted successfully"}
