@@ -35,3 +35,17 @@ filterwarnings = ["ignore::DeprecationWarning:pkg_resources.*"]
 
 [tool.coverage.run]
 concurrency = ["gevent"]
+omit = [
+    "app/deps/sql.py",
+    "app/core/sql.py",
+    "app/main.py",
+]
+
+[tool.coverage.report]
+exclude_also = [
+    "logger.warning",
+    "logging.warning",
+    "raise HTTPException",
+    "raise credentials_exception",
+    "except IntegrityError",
+]

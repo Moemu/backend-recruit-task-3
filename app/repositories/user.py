@@ -146,7 +146,7 @@ class UserRepository:
         bind = self.session.get_bind()
         if bind.dialect.name == "sqlite":
             return course_date_column["term"] == f'"{term}"'
-        else:
+        else:  # pragma: no cover
             return course_date_column["term"] == term
 
     async def get_schedule(self, user: User, term: str) -> list[Course]:
