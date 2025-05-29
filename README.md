@@ -102,7 +102,7 @@
 
 3. 安装依赖
    ```bash
-   pip install -r requirements.txt
+   pip install .
    ```
 
 4. 启动应用
@@ -212,9 +212,8 @@ D:\PROJECT\BACKEND-RECRUIT-TASK-3
 │  .pre-commit-config.yaml     # pre-commit 钩子配置
 │  config.yml                  # 项目配置文件（可选，全局配置）
 │  LICENSE                     # 项目许可证
-│  pytest.ini                  # Pytest 测试文件
 │  README.md                   # 项目说明文档
-│  requirements.txt            # 项目依赖列表
+│  pyproject.toml              # 项目元数据和依赖管理
 ├─.github
 │  └─workflows
 │          pytest.yaml         # Github Action 测试工作流配置

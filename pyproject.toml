@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ManagementSystem"
+version = "1.0.0"
+description = "Python implementation of quaint academic steward"
+authors = [
+    { name = "Muika(@Moemu)", email = "i@snowy.moe" }
+]
+dependencies = [
+    "colorlog==6.9.0",
+    "passlib==1.7.4",
+    "PyJWT==2.10.1",
+    "pytest_asyncio==1.0.0",
+    "fastapi==0.115.12",
+    "sqlalchemy==2.0.41",
+    "redis==6.1.0",
+    "httpx==0.28.1",
+    "aiosqlite==0.21.0",
+    "PyYAML==6.0.2",
+    "aiomysql==0.2.0",
+    "python-multipart==0.0.20",
+    "asyncmy==0.2.10",
+    "bcrypt==4.0.1",
+    "gevent==25.5.1",
+]
+
+[tool.pytest.ini_options]
+pythonpath = "."
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "session"
+filterwarnings = ["ignore::DeprecationWarning:pkg_resources.*"]
+
+[tool.coverage.run]
+concurrency = ["gevent"]
