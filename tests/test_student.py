@@ -28,8 +28,6 @@ async def test_edit(
         params={
             "name": "test_user_edited",
             "session": 24,
-            "dept_no": 10,
-            "major_no": 2,
             "class_number": 1,
         },
     )
@@ -39,8 +37,6 @@ async def test_edit(
     assert edited_user is not None
     assert edited_user.name == "test_user_edited"
     assert edited_user.session == 24
-    assert edited_user.dept_no == 10
-    assert edited_user.major_no == 2
     assert edited_user.class_number == 1
 
 
@@ -48,13 +44,14 @@ async def test_schedule(
     student_client: AsyncClient,
     course_repo: CourseRepository,
     test_student: User,
+    test_teacher: User,
     user_repo: UserRepository,
 ):
     await user_repo.session.refresh(test_student)
 
     await course_repo.create_course(
         course_name="test_course",
-        teacher_id=114514,
+        teacher=test_teacher.id,
         major_no=test_student.major_no,
         session=test_student.session,
         course_type=CourseType.CORE,

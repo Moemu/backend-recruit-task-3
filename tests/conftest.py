@@ -9,6 +9,8 @@ from app.deps.sql import get_db as get_sql_db
 from app.main import app
 from app.models.user import User, UserRole
 from app.repositories.course import CourseRepository
+from app.repositories.department import DepartmentRepository
+from app.repositories.major import MajorRepository
 from app.repositories.user import UserRepository
 from app.services.auth_service import get_password_hash
 
@@ -50,17 +52,24 @@ async def course_repo(database: AsyncSession) -> CourseRepository:
 
 
 @pytest_asyncio.fixture
+async def department_repo(database: AsyncSession) -> DepartmentRepository:
+    repo = DepartmentRepository(database)
+    return repo
+
+
+@pytest_asyncio.fixture
+async def major_repo(database: AsyncSession) -> MajorRepository:
+    repo = MajorRepository(database)
+    return repo
+
+
+@pytest_asyncio.fixture
 async def test_user(user_repo: UserRepository) -> User:
     hashed_password = get_password_hash("123456")
     user = await user_repo.create_user(
-        name="test_user",
-        password=hashed_password,
-        role=UserRole.student,
-        session=0,
-        dept_no=0,
-        major_no=0,
-        class_number=0,
+        name="test_user", password=hashed_password, role=UserRole.student, session=0
     )
+    assert user
     return user
 
 
@@ -72,8 +81,8 @@ async def test_admin(user_repo: UserRepository) -> User:
         password=hashed_password,
         role=UserRole.admin,
         session=0,
-        dept_no=0,
     )
+    assert admin
     return admin
 
 
@@ -85,10 +94,11 @@ async def test_student(user_repo: UserRepository) -> User:
         password=hashed_password,
         role=UserRole.student,
         session=25,
-        dept_no=5,
-        major_no=1,
+        dept_no="DP001",
+        major_no="MA001",
         class_number=2,
     )
+    assert user
     return user
 
 
@@ -100,8 +110,9 @@ async def test_teacher(user_repo: UserRepository) -> User:
         password=hashed_password,
         role=UserRole.teacher,
         session=24,
-        dept_no=3,
+        dept_no="DP001",
     )
+    assert user
     return user
 
 

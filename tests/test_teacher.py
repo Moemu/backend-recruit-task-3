@@ -12,7 +12,7 @@ async def test_add_course(teacher_client: AsyncClient):
         json={
             "course_name": "和沐沐一起学 Python 吧",
             "session": 24,
-            "major_no": 15,
+            "major_no": "MA001",
             "course_type": 0,
             "course_date": {
                 "term": "2024-2025-2",
