@@ -40,15 +40,15 @@ async def test_info(teacher_client: AsyncClient):
     assert response.json()["course_name"] == "和沐沐一起学 Python 吧"
 
 
-async def test_status(teacher_client: AsyncClient, course_repo: CourseRepository):
+async def test_submit(teacher_client: AsyncClient, course_repo: CourseRepository):
     response = await teacher_client.post(
-        "/api/course/status", params={"course_no": test_course, "status": 4}
+        "/api/course/submit", params={"course_no": test_course}
     )
     assert response.status_code == 200
     course = await course_repo.get_by_course_no(test_course)
     await course_repo.session.refresh(course)
     assert course is not None
-    assert course.status == 4
+    assert course.status == 1
 
 
 async def test_edit(teacher_client: AsyncClient, course_repo: CourseRepository):

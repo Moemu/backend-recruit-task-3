@@ -2,10 +2,12 @@ from database import async_session
 from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.user import UserRole
+from app.models.user import User, UserRole
+from app.repositories.course import CourseRepository
 from app.repositories.department import DepartmentRepository
 from app.repositories.major import MajorRepository
 from app.repositories.user import UserRepository
+from app.schemas.course import CourseType
 
 TEST_USERS: list[str] = []
 
@@ -132,6 +134,57 @@ async def test_major_delete(admin_client: AsyncClient):
         new_repo = MajorRepository(session)
         deleted_major = await new_repo.get_by_major_no("MA002")
         assert deleted_major is None
+
+
+async def test_course(
+    admin_client: AsyncClient, course_repo: CourseRepository, test_teacher: User
+):
+    # 创建测试课程
+    test_course = await course_repo.create_course(
+        course_name="测试课程",
+        teacher=test_teacher.id,
+        major_no="MA001",
+        session=25,
+        course_type=CourseType.CORE,
+        course_date={
+            "term": "2024-2025-2",
+            "start_week": 1,
+            "end_week": 16,
+            "is_double_week": False,
+            "week_day": 5,
+            "section": [3, 4, 5],
+        },
+        credit=1.0,
+        is_public=True,
+        status=1,
+    )
+
+    # 获取待审核课程
+    response = await admin_client.post(
+        "/api/admin/course/get_pending",
+    )
+    assert response.status_code == 200
+    assert response.json()
+    assert any(
+        course["course_no"] == test_course.course_no for course in response.json()
+    )
+
+    # 测试课程审核
+    response = await admin_client.post(
+        "/api/admin/course/set_status",
+        params={
+            "course_no": test_course.course_no,
+            "status": 4,
+            "reason": "测试课程审核",
+        },
+    )
+    assert response.status_code == 200
+    async with async_session() as session:
+        new_repo = CourseRepository(session)
+        course = await new_repo.get_by_course_no(test_course.course_no)
+        assert course is not None
+        assert course.status == 4
+        assert course.status_comment == "测试课程审核"
 
 
 async def test_register(admin_client: AsyncClient, user_repo: UserRepository):
