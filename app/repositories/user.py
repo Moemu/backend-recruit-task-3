@@ -1,6 +1,7 @@
 from typing import Optional
 
 from sqlalchemy import func, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.user import User, UserRole
@@ -39,11 +40,11 @@ class UserRepository:
         password: str,
         role: UserRole,
         session: int,
-        dept_no: int,
-        major_no: Optional[int] = None,
+        dept_no: Optional[str] = None,
+        major_no: Optional[str] = None,
         class_number: Optional[int] = None,
         status: bool = True,
-    ) -> User:
+    ) -> Optional[User]:
         """
         创建一个用户
 
@@ -56,14 +57,17 @@ class UserRepository:
         :param class_number: 班级ID
         :param status: 用户状态(正常/禁用)
 
-        :return: 用户对象
+        :return: 用户对象。失败则返回 None
         """
         if role == UserRole.student:
-            prefix = f"{session:02d}{dept_no:03d}{major_no:02d}{class_number:02d}"
+            dept = (dept_no and int(dept_no.removeprefix("DP"))) or 0
+            major = (major_no and int(major_no.removeprefix("MA"))) or 0
+            prefix = f"{session:02d}{dept:03d}{major:02d}{class_number:02d}"
             addition_order = await self.get_addition_order(prefix)
             account_number = f"{prefix}{addition_order:02d}"
         else:
-            prefix = f"{session:02d}{dept_no:03d}"
+            dept = (dept_no and int(dept_no.removeprefix("DP"))) or 0
+            prefix = f"{session:02d}{(dept or 0):03d}"
             addition_order = await self.get_addition_order(prefix)
             account_number = f"{prefix}{addition_order:04d}"
 
@@ -78,8 +82,13 @@ class UserRepository:
             class_number=class_number,
             status=status,
         )
-        self.session.add(user)
-        await self.session.commit()
+
+        try:
+            self.session.add(user)
+            await self.session.commit()
+        except IntegrityError:
+            return None
+
         return user
 
     async def edit_info(
@@ -88,11 +97,11 @@ class UserRepository:
         name: Optional[str] = None,
         status: Optional[bool] = None,
         role: Optional[UserRole] = None,
-        major_no: Optional[int] = None,
         session: Optional[int] = None,
-        dept_no: Optional[int] = None,
+        major_no: Optional[str] = None,
+        dept_no: Optional[str] = None,
         class_number: Optional[int] = None,
-    ):
+    ) -> bool:
         """
         编辑用户信息
 
@@ -112,7 +121,13 @@ class UserRepository:
         user.dept_no = dept_no or user.dept_no
         user.major_no = major_no or user.major_no
         user.class_number = class_number or user.class_number
-        await self.session.commit()
+
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            return False
+
+        return True
 
     async def change_password(self, user: User, new_password: str):
         """

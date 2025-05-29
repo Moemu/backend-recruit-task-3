@@ -25,7 +25,7 @@ async def add_course(
     repo = CourseRepository(db)
     result = await repo.create_course(
         course_name=course.course_name,
-        teacher_id=current_user.id,
+        teacher=current_user.id,
         major_no=course.major_no,
         session=course.session,
         course_type=course.course_type,
@@ -80,7 +80,7 @@ async def edit_course(
     if not result:
         raise HTTPException(
             status_code=404,
-            detail="Incorrect course_no",
+            detail="Incorrect course_no or major_no or dept_no is invalid.",
         )
 
     logger.info("教师编辑课程消息请求成功")

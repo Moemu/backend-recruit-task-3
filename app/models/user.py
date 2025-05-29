@@ -33,11 +33,11 @@ class User(Base):
 
     name: Mapped[str] = mapped_column(String(12), nullable=False, comment="姓名")
     session: Mapped[int] = mapped_column(Integer, nullable=False, comment="届号")
-    dept_no: Mapped[int] = mapped_column(
-        Integer, ForeignKey("department.dept_no"), nullable=False, comment="院系ID"
+    dept_no: Mapped[str] = mapped_column(
+        String(10), ForeignKey("department.dept_no"), nullable=True, comment="院系ID"
     )
-    major_no: Mapped[int] = mapped_column(
-        Integer, ForeignKey("major.major_no"), nullable=True, comment="专业ID"
+    major_no: Mapped[str] = mapped_column(
+        String(10), ForeignKey("major.major_no"), nullable=True, comment="专业ID"
     )
     class_number: Mapped[int] = mapped_column(Integer, nullable=True, comment="班级ID")
 

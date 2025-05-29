@@ -9,8 +9,8 @@ class RegisterRequest(BaseModel):
     name: str = Field(..., description="用户名")
     role: UserRole = Field(..., description="角色", pattern="^(student|teacher|admin)$")
     session: int = Field(..., description="学年")
-    dept_no: int = Field(..., description="院系编号")
-    major_no: Optional[int] = Field(default=None, description="专业编号")
+    dept_no: Optional[str] = Field(default=None, description="院系编号")
+    major_no: Optional[str] = Field(default=None, description="专业编号")
     class_number: Optional[int] = Field(default=None, description="班级号")
     status: Optional[bool] = Field(default=True, description="用户状态")
 
@@ -22,8 +22,8 @@ class EditRequest(BaseModel):
         default=None, description="角色", pattern="^(student|teacher|admin)$"
     )
     session: Optional[int] = Field(default=None, description="学年")
-    dept_no: Optional[int] = Field(default=None, description="院系编号")
-    major_no: Optional[int] = Field(default=None, description="专业编号")
+    dept_no: Optional[str] = Field(default=None, description="院系编号")
+    major_no: Optional[str] = Field(default=None, description="专业编号")
     class_number: Optional[int] = Field(default=None, description="班级号")
     status: Optional[bool] = Field(default=True, description="用户状态")
 

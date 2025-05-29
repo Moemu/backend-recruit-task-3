@@ -2,7 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from app.api import admin, auth, student, teacher
+from app.api import auth, student, teacher
+from app.api.admin import department, major, user
 from app.core.config import config
 from app.core.logger import logger
 from app.core.sql import close_db, load_db
@@ -27,7 +28,11 @@ app = FastAPI(title=config.title, version=config.version, lifespan=lifespan)
 app.include_router(auth.router, prefix="/api/auth", tags=["auth"])
 app.include_router(student.router, prefix="/api/student", tags=["student"])
 app.include_router(teacher.router, prefix="/api/course", tags=["course"])
-app.include_router(admin.router, prefix="/api/admin", tags=["admin"])
+app.include_router(user.router, prefix="/api/admin/user", tags=["admin", "user"])
+app.include_router(
+    department.router, prefix="/api/admin/department", tags=["admin", "department"]
+)
+app.include_router(major.router, prefix="/api/admin/major", tags=["admin", "major"])
 
 
 if __name__ == "__main__":

@@ -45,10 +45,12 @@ async def register(
             ),
         }
 
-    logger.warning(f"用户 {request.name} 已存在，抛出 400")
+    logger.warning(
+        f"指定的院系/专业不存在 {request.major_no}({request.dept_no})，抛出 404"
+    )
     raise HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
-        detail="User already exists",
+        detail="major_no or dept_no is invalid.",
     )
 
 
@@ -78,10 +80,12 @@ async def batch_register(
                 role=request.role,
             )
         ):
-            logger.warning(f"用户 {request.name} 已存在，抛出 400")
+            logger.warning(
+                f"指定的院系/专业不存在 {request.major_no}({request.dept_no})，抛出 404"
+            )
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User already exists",
+                detail="major_no or dept_no is invalid.",
             )
 
         register_responses.append(
@@ -112,7 +116,7 @@ async def edit_info(
         logger.warning(f"用户 {request.name} 不存在，抛出 404")
         raise HTTPException(status.HTTP_404_NOT_FOUND, detail="No such user.")
 
-    await repo.edit_info(
+    if not await repo.edit_info(
         user=target_user,
         name=request.name,
         status=request.status,
@@ -121,7 +125,14 @@ async def edit_info(
         session=request.session,
         dept_no=request.dept_no,
         class_number=request.class_number,
-    )
+    ):
+        logger.warning(
+            f"指定的院系/专业不存在 {request.major_no}({request.dept_no})，抛出 404"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="major_no or dept_no is invalid.",
+        )
 
     logger.info("编辑用户请求处理成功")
     return {"msg": "User updated successfully"}

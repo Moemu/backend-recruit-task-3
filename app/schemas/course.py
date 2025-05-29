@@ -21,7 +21,7 @@ class CourseDate(TypedDict):
 
 class CourseCreateRequest(BaseModel):
     course_name: str
-    major_no: int
+    major_no: str
     session: int
     course_type: CourseType
     course_date: CourseDate
@@ -32,7 +32,7 @@ class CourseCreateRequest(BaseModel):
 class CourseUpdateRequest(BaseModel):
     course_no: str
     course_name: Optional[str] = None
-    major_no: Optional[int] = None
+    major_no: Optional[str] = None
     session: Optional[int] = None
     course_type: Optional[CourseType] = None
     course_date: Optional[CourseDate] = None

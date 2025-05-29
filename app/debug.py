@@ -20,9 +20,9 @@ async def create_a_debug_admin():
         password=get_password_hash(ADMIN_PWD),
         role=UserRole.admin,
         session=25,
-        dept_no=1,
     )
 
+    assert user
     return user
 
 

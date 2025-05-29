@@ -26,8 +26,8 @@ class CourseRepository:
     async def create_course(
         self,
         course_name: str,
-        teacher_id: int,
-        major_no: int,
+        teacher: int,
+        major_no: str,
         session: int,
         course_type: CourseType,
         credit: float,
@@ -47,6 +47,8 @@ class CourseRepository:
         :param credit: 学分
         :param is_public: 是否公开
         :param status: 课程状态
+
+        :return: 课程对象。失败则返回 None
         """
         courses = await self.session.execute(select(func.count(Course.id)))
         total_courses = (courses.scalar() or 0) + 1
@@ -54,7 +56,7 @@ class CourseRepository:
         course = Course(
             course_no=course_no,
             course_name=course_name,
-            teacher_id=teacher_id,
+            teacher=teacher,
             major_no=major_no,
             session=session,
             course_type=course_type.value,
@@ -79,7 +81,7 @@ class CourseRepository:
         course_no: str,
         course_name: Optional[str] = None,
         teacher: Optional[int] = None,
-        major_no: Optional[int] = None,
+        major_no: Optional[str] = None,
         session: Optional[int] = None,
         course_type: Optional[CourseType] = None,
         course_date: Optional[CourseDate] = None,
@@ -100,6 +102,8 @@ class CourseRepository:
         :param credit: 学分
         :param is_public: 是否公开
         :param status: 课程状态
+
+        :return: 修改后的课程对象。失败则返回 None
         """
         if not (course := await self.get_by_course_no(course_no)):
             return None
@@ -114,7 +118,11 @@ class CourseRepository:
         course.is_public = is_public or course.is_public
         course.status = status or course.status
 
-        await self.session.commit()
+        try:
+            await self.session.commit()
+        except IntegrityError:
+            return None
+
         return course
 
     async def delete_course(self, course_no: str) -> bool:

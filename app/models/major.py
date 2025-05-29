@@ -19,8 +19,8 @@ class Major(Base):
     major_name: Mapped[str] = mapped_column(
         String(25), nullable=False, comment="专业名称"
     )
-    dept_no: Mapped[int] = mapped_column(
-        Integer, ForeignKey("department.dept_no"), nullable=False, comment="院系编号"
+    dept_no: Mapped[str] = mapped_column(
+        String(10), ForeignKey("department.dept_no"), nullable=False, comment="院系编号"
     )
 
     create_time: Mapped[datetime] = mapped_column(

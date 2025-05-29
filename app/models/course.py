@@ -23,8 +23,8 @@ class Course(Base):
     teacher: Mapped[int] = mapped_column(
         Integer, ForeignKey("user.id"), comment="教师ID"
     )
-    major_no: Mapped[int] = mapped_column(
-        Integer, ForeignKey("major.major_no"), comment="专业ID"
+    major_no: Mapped[str] = mapped_column(
+        String(10), ForeignKey("major.major_no"), comment="专业编号"
     )
     session: Mapped[int] = mapped_column(Integer, nullable=False, comment="年级")
     course_type: Mapped[int] = mapped_column(
