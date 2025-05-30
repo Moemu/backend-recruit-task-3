@@ -3,6 +3,7 @@ from typing import Optional
 from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.models.course import Course, CourseType
 from app.models.selection import Selection
@@ -195,7 +196,8 @@ class UserRepository:
 
         # 将 union 查询包装在 CTE 中，然后从 CTE 中选择 Course 实体
         course_schedule_cte = combined_stmt.cte("course_schedule_cte")
-        final_query = select(Course).select_from(course_schedule_cte)
+        course_alias = aliased(Course, alias=course_schedule_cte)
+        final_query = select(course_alias)
 
         result = await self.session.execute(final_query)
         courses = result.scalars().all()

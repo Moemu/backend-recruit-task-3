@@ -2,7 +2,7 @@
 from typing import List, Optional
 
 from fastapi.exceptions import HTTPException
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -61,6 +61,18 @@ class SelectionRepository:
         )
         return result.scalars().all()  # type:ignore
 
+    def _term_filter(self, course_date_column, term: str):
+        """
+        term json 对象过滤器
+        """
+        bind = self.session.get_bind()
+        if bind.dialect.name == "mysql":
+            return course_date_column.op("->>")("$.term") == term
+        elif bind.dialect.name == "sqlite":
+            return func.json_extract(course_date_column, "$.term") == term
+        else:  # pragma: no cover
+            return course_date_column["term"] == term
+
     async def get_available_courses(
         self, student_id: int, term: str, skip: int = 0, limit: int = 100
     ) -> List[Course]:
@@ -77,7 +89,7 @@ class SelectionRepository:
             .where(
                 Course.is_public.is_(True),
                 Course.status == 4,
-                Course.course_date["term"] == term,
+                self._term_filter(Course.course_date, term),
                 Course.course_type == CourseType.ELECTIVE,
                 Course.id.not_in(
                     select(Selection.course_id).where(
