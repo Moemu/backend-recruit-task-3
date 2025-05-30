@@ -57,6 +57,29 @@
 | create_time | DateTime | 创建时间 | 非空、自动 |
 | update_time | DateTime | 更新时间 | 非空、自动更新 |
 
+### 院系模型 (Department)
+
+存储院系信息。
+
+| 字段名 | 类型 | 说明 | 约束 |
+|--------|------|------|------|
+| id | Integer | 主键ID | 主键、自增 |
+| name | String(50) | 院系名称 | 唯一、非空 |
+| create_time | DateTime | 创建时间 | 非空、自动 |
+| update_time | DateTime | 更新时间 | 非空、自动更新 |
+
+### 专业模型 (Major)
+
+存储专业信息。
+
+| 字段名 | 类型 | 说明 | 约束 |
+|--------|------|------|------|
+| id | Integer | 主键ID | 主键、自增 |
+| name | String(50) | 专业名称 | 唯一、非空 |
+| department_id | Integer | 所属院系ID | 非空，关联 Department |
+| create_time | DateTime | 创建时间 | 非空、自动 |
+| update_time | DateTime | 更新时间 | 非空、自动更新 |
+
 ### 课程模型 (Course)
 
 存储课程信息及其关联数据。
@@ -214,6 +237,7 @@ D:\PROJECT\BACKEND-RECRUIT-TASK-3
 │  LICENSE                     # 项目许可证
 │  README.md                   # 项目说明文档
 │  pyproject.toml              # 项目元数据和依赖管理
+│  coverage.xml                # 代码覆盖率报告
 ├─.github
 │  └─workflows
 │          pytest.yaml         # Github Action 测试工作流配置
@@ -249,6 +273,8 @@ D:\PROJECT\BACKEND-RECRUIT-TASK-3
 │  │
 │  ├─repositories              # 数据访问层（仓库模式）
 │  │     course.py            # 课程数据操作封装
+│  │     department.py        # 院系数据操作封装
+│  │     major.py             # 专业数据操作封装
 │  │     user.py              # 用户数据操作封装
 │  │     __init__.py          # 仓库子包初始化
 │  │
@@ -256,11 +282,22 @@ D:\PROJECT\BACKEND-RECRUIT-TASK-3
 │  │     admin.py             # 管理员相关请求模型
 │  │     auth.py              # 登录/注册请求与响应模型
 │  │     course.py            # 课程相关请求与响应模型
+│  │     department.py        # 院系相关请求与响应模型
+│  │     major.py             # 专业相关请求与响应模型
 │  │     __init__.py          # Schemas 子包初始化
 │  │
 │  ├─services                  # 业务逻辑服务层
 │  │  │  auth_service.py      # 认证服务逻辑封装
 │  │  │  token_blacklist.py   # Token 黑名单服务（登出逻辑）
+│
+├─build                        # 构建输出目录
+│  └─bdist.win-amd64
+│
+├─htmlcov                      # HTML 格式的代码覆盖率报告
+│      # ... (coverage report files)
+│
+├─logs                         # 日志文件目录
+│      # ... (log files)
 │
 └─tests                        # 测试文件
         conftest.py           # pytest fixture
